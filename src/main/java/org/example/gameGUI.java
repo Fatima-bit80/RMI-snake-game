@@ -1,23 +1,20 @@
 package org.example;
 
-import org.example.Statics.Coordinate;
 import org.example.Statics.Images;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.example.Statics.Config.*;
 
 public class gameGUI extends JFrame {
 
 
-    public gameGUI() throws IOException {
+    public gameGUI() {
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
 
         JFrame frame = new gameGUI();
         frame.setLayout(new BorderLayout());

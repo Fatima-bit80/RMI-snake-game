@@ -8,17 +8,18 @@ import java.awt.*;
 
 public class StartGameGUI extends JFrame {
 
-    private JLabel titleLabel;
-    private JLabel ipAddressLabel;
-    private JLabel nameLabel;
-    private JTextArea messageArea;
+    private final JLabel titleLabel;
+    private final JLabel ipAddressLabel;
+    private final JLabel nameLabel;
+    private final JTextArea messageArea;
 
-    private JTextField ipAddressField;
-    private JTextField snakeNameField;
+    private final JTextField ipAddressField;
+    private final JTextField snakeNameField;
 
-    private JButton connectButton;
+    private final JButton connectButton;
 
     public StartGameGUI() {
+
         setTitle("Snake Online - Connect");
         setSize(TOTAL_WIDTH/3, GAME_HEIGHT*3/4);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,7 +82,7 @@ public class StartGameGUI extends JFrame {
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         connectButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         connectButton.setFont(new Font("Arial", Font.BOLD, 16));
-        connectButton.addActionListener(e -> {SnakeClientImp.connectToTheServer(ipAddressField.getText(),snakeNameField.getText());});
+        connectButton.addActionListener(e -> SnakeClientImp.connectToTheServer(ipAddressField.getText(),snakeNameField.getText()));
         card.add(connectButton);
         card.add(Box.createVerticalStrut(30));
 
