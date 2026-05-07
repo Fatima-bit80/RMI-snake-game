@@ -29,18 +29,20 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         availableColors.add(5);
     }
 
-    private static final ArrayList<Coordinate[]> initialPositions = new ArrayList<>();
+    private static final ArrayList<ArrayList<Coordinate>> initialPositions = new ArrayList<>();
 
     static {
         for (int i = 0; i < 6; i++) {
 
-            initialPositions.add(new Coordinate[]{
-                    new Coordinate((i + 2) * 4, 6),
-                    new Coordinate((i + 2) * 4, 5),
-                    new Coordinate((i + 2) * 4, 4)
-            });
+            ArrayList<Coordinate> snakeCoordinate = new ArrayList<>();
+
+            snakeCoordinate.add(new Coordinate((i + 2) * 4, 6));
+            snakeCoordinate.add(new Coordinate((i + 2) * 4, 5));
+            snakeCoordinate.add(new Coordinate((i + 2) * 4, 4));
+
+            initialPositions.add(snakeCoordinate);
         }
-    }//initial position of snakes
+    }//initial positions of snakes
 
     private int nbPlayers = 0;
     //players in the lobby
@@ -66,28 +68,48 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     @Override
     public synchronized int connect(ISnakeClient client, String name) throws RemoteException {
 
-        int color = -1;
+        System.out.println(availableColors);
+        int playerNumber = -1;
         //todo save
 
+
+
+
         id++;
-        if (nbPlayers < 6) {
-            color = availableColors.get(0);
-            availableColors.remove(color);
+        Snake s =createSnake(id,name,playerNumber);
+
+        snakes.put(id,s);
+
+        if (nbPlayers <= 5) {
+            playerNumber = availableColors.get(0);
+            availableColors.remove((Object)playerNumber);
+            s.setPlayerNumber(playerNumber);
+            s.setCoordinates(initialPositions.get(playerNumber));
 
 
             nbPlayers++;
 
-            client.displayMessage("connected successfully " + "your id is " + id);
+            String message = "connected successfully " + "your id is " + id;
+            System.out.println("player with id "+id+" connected successfully");
+            client.displayMessage(message);
 
+            client.displayMessage(s.toString());
+            client.changeLabelText(message);
             gameStarted.put(id, false);
             players.put(id, client);
+
+
 
 
             client.addToLobby();
         } else {
             waitingList.put(id, client);
-            client.displayMessage("there are already enough players, you can't connect\ntry again another time");
+            String message = "there are already enough players, you can't connect\ntry again another time";
+            client.displayMessage(message);
 
+
+            System.out.println("a player tried to connect but the lobby is full transforming to waiting list");
+            client.changeLabelText(message);
             client.addToWaitingList();
         }
 
@@ -95,26 +117,65 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         return id;
     }
 
+    private Snake createSnake(int id, String name, int playerNumber) {
+
+        Snake s = new Snake(playerNumber,null,2,id,name);
+
+        if(playerNumber!=-1)
+           s.setCoordinates(initialPositions.get(playerNumber));
+
+        return s;
+    }
+
     @Override
     public synchronized void disconnect(int id) throws RemoteException {
 
+
         if (players.containsKey(id)) {
+           int playerNumber = snakes.get(id).getPlayerNumber();
+           availableColors.add(playerNumber);
+
+
+            ArrayList<Coordinate> snakeCoordinate = new ArrayList<>();
+
+            snakeCoordinate.add(new Coordinate((playerNumber + 2) * 4, 6));
+            snakeCoordinate.add(new Coordinate((playerNumber+ 2) * 4, 5));
+            snakeCoordinate.add(new Coordinate((playerNumber + 2) * 4, 4));
+
+            initialPositions.add(snakeCoordinate);
+
+            gameStarted.remove(id);
             players.remove(id);
             nbPlayers--;
 
         } else waitingList.remove(id);
 
+        snakes.remove(id);
 
-        if (nbPlayers < 6) {
+
+        System.out.println("player with id "+id+" disconnected successfully");
+
+        if (nbPlayers < 6 && !waitingList.isEmpty()) {
             int addedPlayer = (int) (waitingList.keySet().toArray())[0];
 
             ISnakeClient client = waitingList.get(addedPlayer);
-
             players.put(addedPlayer, client);
             waitingList.remove(addedPlayer);
-            client.displayMessage("you are now playing " + "your id is " + id);
+
+
+            Snake s = snakes.get(addedPlayer);
+            int color = availableColors.get(0);
+            s.setPlayerNumber(color);
+            s.setCoordinates(initialPositions.get(addedPlayer));
+
+            String message = "you are now playing " + "your id is " + id+"  snake : "+s;
+
+            client.displayMessage(message);
+            client.changeLabelText(message);
             gameStarted.put(id, false);
             client.addToLobby();
+
+
             nbPlayers++;
         }
     }
@@ -151,11 +212,27 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
         try {
             Registry r = LocateRegistry.getRegistry(PORT);
+
             ISnakeServer server = new SnakeServerImp();
+
             r.rebind("snakeServer", server);
+
+            System.out.println("Snake server is running...");
 
         } catch (RemoteException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void notifyAllPlayers(){
+        for(int i: players.keySet()){
+            ISnakeClient c =  (ISnakeClient) players.get(i);
+            try {
+                c.displayMessage("the players ids: "+players.keySet());
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+
         }
     }
 }

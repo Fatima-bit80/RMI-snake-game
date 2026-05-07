@@ -1,8 +1,9 @@
 package org.example;
 
+import javax.swing.*;
 import java.util.List;
 
-public class Lobby {
+public class Lobby extends JPanel {
 
     private int nbPlayers;
 

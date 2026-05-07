@@ -18,4 +18,6 @@ public interface ISnakeClient extends Remote {
 
     public void notifyChange(List<Snake> snakes) throws RemoteException;
 
+    public void changeLabelText(String tetx) throws RemoteException;
+
 }

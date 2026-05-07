@@ -16,7 +16,7 @@ public class Snake {
 
     public int id;
     public String name;
-    public int color;
+    public int playerNumber;
     public ArrayList<Coordinate> coordinates;
     public int headDir;
 //    0 up
@@ -26,20 +26,20 @@ public class Snake {
 
 
 
-    public Snake(int color, ArrayList<Coordinate> coordinates, int headDir, int id, String name) {
-        this.color = color;
+    public Snake(int playerNumber, ArrayList<Coordinate> coordinates, int headDir, int id, String name) {
+        this.playerNumber = playerNumber        ;
         this.coordinates = coordinates;
         this.headDir = headDir;
         this.id = id;
         this.name = name;
     }
 
-    public int getColor() {
-        return color;
+    public int getPlayerNumber() {
+        return playerNumber;
     }
 
-    public void setColor(int color) {
-        this.color = color;
+    public void setPlayerNumber(int playerNumber) {
+        this.playerNumber = playerNumber;
     }
 
     public ArrayList<Coordinate> getCoordinates() {
@@ -118,7 +118,7 @@ public class Snake {
         g2d.drawString(name, x , y - 2);
 
 // main text
-        String hex = ColorCode.fromCode(color).getColorHex();
+        String hex = ColorCode.fromCode(playerNumber).getColorHex();
         Color c = new Color(
                 Integer.parseInt(hex.substring(1, 3), 16),
                 Integer.parseInt(hex.substring(3, 5), 16),
@@ -139,7 +139,7 @@ public class Snake {
     }
 
     public void drawBody(Graphics2D g2d, Coordinate c,JPanel panel) {
-        g2d.drawImage(snakeImage[color][1], c.px, c.py, TILE_SIZE, TILE_SIZE, panel);
+        g2d.drawImage(snakeImage[playerNumber][1], c.px, c.py, TILE_SIZE, TILE_SIZE, panel);
     }
 
 
@@ -152,7 +152,7 @@ public class Snake {
         g2d.rotate(Math.toRadians(dir * 90), tail.px + 0.5 * TILE_SIZE, tail.py + 0.5 * TILE_SIZE);
 
 
-        g2d.drawImage(snakeImage[color][2], tail.px,  tail.py, TILE_SIZE, TILE_SIZE, panel);
+        g2d.drawImage(snakeImage[playerNumber][2], tail.px,  tail.py, TILE_SIZE, TILE_SIZE, panel);
 
 
         g2d.setTransform(old);
@@ -162,10 +162,22 @@ public class Snake {
     public void drawHead(Graphics2D g2d, Coordinate head,JPanel panel) {
         AffineTransform old = g2d.getTransform();
         g2d.rotate(Math.toRadians(headDir * 90), head.px + 0.5 * TILE_SIZE, head.py + 0.5 * TILE_SIZE);
-        g2d.drawImage(snakeImage[color][0],  head.px,  head.py, TILE_SIZE, TILE_SIZE, panel);
+        g2d.drawImage(snakeImage[playerNumber][0],  head.px,  head.py, TILE_SIZE, TILE_SIZE, panel);
 
 
         g2d.setTransform(old);
     }
+
+
+    @Override
+    public String toString() {
+        return "Snake{" +
+                "coordinates=" + coordinates +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", playerNumber=" + playerNumber +
+                ", headDir=" + headDir +
+                '}';
     }
+}
 

@@ -5,6 +5,8 @@ import static org.example.Statics.Config.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class StartGameGUI extends JFrame {
 
@@ -18,8 +20,11 @@ public class StartGameGUI extends JFrame {
 
     private final JButton connectButton;
 
-    public StartGameGUI() {
+    private final SnakeClientImp client;
 
+    public StartGameGUI(SnakeClientImp snakeClient) {
+
+        client = snakeClient;
         setTitle("Snake Online - Connect");
         setSize(TOTAL_WIDTH/3, GAME_HEIGHT*3/4);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -82,7 +87,7 @@ public class StartGameGUI extends JFrame {
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         connectButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         connectButton.setFont(new Font("Arial", Font.BOLD, 16));
-        connectButton.addActionListener(e -> SnakeClientImp.connectToTheServer(ipAddressField.getText(),snakeNameField.getText()));
+        connectButton.addActionListener(e -> client.connectToTheServer(ipAddressField.getText(),snakeNameField.getText()));
         card.add(connectButton);
         card.add(Box.createVerticalStrut(30));
 
@@ -104,9 +109,23 @@ public class StartGameGUI extends JFrame {
         add(background);
         setVisible(true);
         setResizable(false);
+
+
+
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+
+                System.out.println("Window is closing");
+                client.disconnect();
+
+                dispose(); // closes window
+                System.exit(0); // optional
+            }
+        });
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(StartGameGUI::new);
+    public JTextArea getMessageArea() {
+        return messageArea;
     }
 }
