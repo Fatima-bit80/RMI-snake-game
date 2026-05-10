@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class StartGameGUI extends JFrame {
+public class StartPagePanel extends JPanel {
 
     private final JLabel titleLabel;
     private final JLabel ipAddressLabel;
@@ -22,12 +22,10 @@ public class StartGameGUI extends JFrame {
 
     private final SnakeClientImp client;
 
-    public StartGameGUI(SnakeClientImp snakeClient) {
+    public StartPagePanel(SnakeClientImp snakeClient) {
 
         client = snakeClient;
-        setTitle("Snake Online - Connect");
         setSize(TOTAL_WIDTH/3, GAME_HEIGHT*3/4);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         JPanel background = new JPanel();
         background.setLayout(new GridBagLayout());
@@ -105,24 +103,12 @@ public class StartGameGUI extends JFrame {
         gbc.insets = new Insets(15, 15, 15, 15);
         background.add(card, gbc);
 
-        setLocationRelativeTo(null);
         add(background);
         setVisible(true);
-        setResizable(false);
 
 
 
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
 
-                System.out.println("Window is closing");
-                client.disconnect();
-
-                dispose(); // closes window
-                System.exit(0); // optional
-            }
-        });
     }
 
     public JTextArea getMessageArea() {
