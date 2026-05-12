@@ -181,6 +181,13 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     }
 
     @Override
+    public void setDirection(int id, int direction) throws RemoteException {
+
+            snakes.get(id).setDirection(direction);
+
+    }
+
+    @Override
     public void requestStartGame(int id) throws RemoteException {
 
 

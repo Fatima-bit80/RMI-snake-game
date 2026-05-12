@@ -19,10 +19,14 @@ public class Snake {
     public int playerNumber;
     public ArrayList<Coordinate> coordinates;
     public int headDir;
+
+    private JPanel panelToDrawOn;
 //    0 up
 //    1 right
 //    2 down
 //    3 left
+
+
 
 
 
@@ -32,6 +36,10 @@ public class Snake {
         this.headDir = headDir;
         this.id = id;
         this.name = name;
+    }
+
+    public void setPanelToDrawOn(JPanel panelToDrawOn) {
+        this.panelToDrawOn = panelToDrawOn;
     }
 
     public int getPlayerNumber() {
@@ -75,97 +83,104 @@ public class Snake {
     }
 
 
-    public void drawSnake(Graphics2D g2d, JPanel panel) {
-        Coordinate head = coordinates.getFirst();
-        Coordinate tail = coordinates.getLast();
-        Coordinate beforeLast = coordinates.get(coordinates.size() - 2);
+    public void drawSnake(Graphics2D g2d) {
+        if(panelToDrawOn != null) {
 
-        writeName(g2d,panel);
-        drawTail(g2d,tail,beforeLast,panel);
+            Coordinate head = coordinates.getFirst();
+            Coordinate tail = coordinates.getLast();
+            Coordinate beforeLast = coordinates.get(coordinates.size() - 2);
 
-        drawHead(g2d,head,panel);
+            writeName(g2d);
+            drawTail(g2d,tail, beforeLast);
+
+            drawHead(g2d,head);
 
 
-
-
-        for (Coordinate s : coordinates) {
-            if (!s.equals(tail) && !s.equals(head))
-                drawBody(g2d, s,panel);
+            for (Coordinate s : coordinates) {
+                if (!s.equals(tail) && !s.equals(head))
+                    drawBody(g2d,s);
+            }
         }
     }
 
 
-    public void writeName(Graphics2D g2d, JPanel panel) {
-        Coordinate head = coordinates.getFirst();
+    public void writeName(Graphics2D g2d) {
+        if(panelToDrawOn!=null) {
 
-        int dy = TEXT_OFFSET+TILE_SIZE;
-        if(headDir==0){
-            dy=-TEXT_OFFSET;
-        }
+            Coordinate head = coordinates.getFirst();
+
+            int dy = TEXT_OFFSET + TILE_SIZE;
+            if (headDir == 0) {
+                dy = -TEXT_OFFSET;
+            }
 
 
-        g2d.setFont(new Font("Arial", Font.BOLD, 14));
+            g2d.setFont(new Font("Arial", Font.BOLD, 14));
 
 
-        int x = head.px;
-        int y = head.py+dy;
+            int x = head.getPx();
+            int y = head.getPy() + dy;
 
 // black border
-        g2d.setColor(Color.BLACK);
-        g2d.drawString(name, x - 1, y );
-        g2d.drawString(name, x + 1, y );
-        g2d.drawString(name, x , y + 2);
-        g2d.drawString(name, x , y - 2);
+            g2d.setColor(Color.BLACK);
+            g2d.drawString(name, x - 1, y);
+            g2d.drawString(name, x + 1, y);
+            g2d.drawString(name, x, y + 2);
+            g2d.drawString(name, x, y - 2);
 
 // main text
-        String hex = ColorCode.fromCode(playerNumber).getColorHex();
-        Color c = new Color(
-                Integer.parseInt(hex.substring(1, 3), 16),
-                Integer.parseInt(hex.substring(3, 5), 16),
-                Integer.parseInt(hex.substring(5, 7), 16),
-                Integer.parseInt(hex.substring(7, 9), 16)
-        );        g2d.setColor(c);
-        g2d.setColor(c);
-        g2d.drawString(name, x, y);
-
-
-
-
-
+            String hex = ColorCode.fromCode(playerNumber).getColorHex();
+            Color c = new Color(
+                    Integer.parseInt(hex.substring(1, 3), 16),
+                    Integer.parseInt(hex.substring(3, 5), 16),
+                    Integer.parseInt(hex.substring(5, 7), 16),
+                    Integer.parseInt(hex.substring(7, 9), 16)
+            );
+            g2d.setColor(c);
+            g2d.setColor(c);
+            g2d.drawString(name, x, y);
 
 
 // draw slightly above the head
-        g2d.drawString(name, head.px, head.py +dy);
+            g2d.drawString(name, head.getPx(), head.getPy() + dy);
+        }
     }
 
-    public void drawBody(Graphics2D g2d, Coordinate c,JPanel panel) {
-        g2d.drawImage(snakeImage[playerNumber][1], c.px, c.py, TILE_SIZE, TILE_SIZE, panel);
+    public void drawBody(Graphics2D g2d, Coordinate c) {
+        if(panelToDrawOn!=null) {
+            g2d.drawImage(snakeImage[playerNumber][1], c.getPx(), c.getPy(), TILE_SIZE, TILE_SIZE,panelToDrawOn);
+        }
     }
 
 
-    public void drawTail(Graphics2D g2d, Coordinate tail,Coordinate beforeLast,JPanel panel) {
-        int dir = tail.tailDirection(beforeLast);
+    public void drawTail(Graphics2D g2d, Coordinate tail,Coordinate beforeLast) {
+
+        if(panelToDrawOn!=null) {
+
+            int dir = tail.tailDirection(beforeLast);
 
 
+            AffineTransform old = g2d.getTransform();
+
+            g2d.rotate(Math.toRadians(dir * 90), tail.getPx() + 0.5 * TILE_SIZE, tail.getPy() + 0.5 * TILE_SIZE);
+
+
+            g2d.drawImage(snakeImage[playerNumber][2], tail.getPx(), tail.getPy(), TILE_SIZE, TILE_SIZE, panelToDrawOn);
+
+
+            g2d.setTransform(old);
+        }
+    }
+
+
+    public void drawHead(Graphics2D g2d, Coordinate head) {
+        if(panelToDrawOn!=null){
         AffineTransform old = g2d.getTransform();
-
-        g2d.rotate(Math.toRadians(dir * 90), tail.px + 0.5 * TILE_SIZE, tail.py + 0.5 * TILE_SIZE);
-
-
-        g2d.drawImage(snakeImage[playerNumber][2], tail.px,  tail.py, TILE_SIZE, TILE_SIZE, panel);
+        g2d.rotate(Math.toRadians(headDir * 90), head.getPx() + 0.5 * TILE_SIZE, head.getPy() + 0.5 * TILE_SIZE);
+        g2d.drawImage(snakeImage[playerNumber][0],  head.getPx(),  head.getPy(), TILE_SIZE, TILE_SIZE, panelToDrawOn);
 
 
-        g2d.setTransform(old);
-    }
-
-
-    public void drawHead(Graphics2D g2d, Coordinate head,JPanel panel) {
-        AffineTransform old = g2d.getTransform();
-        g2d.rotate(Math.toRadians(headDir * 90), head.px + 0.5 * TILE_SIZE, head.py + 0.5 * TILE_SIZE);
-        g2d.drawImage(snakeImage[playerNumber][0],  head.px,  head.py, TILE_SIZE, TILE_SIZE, panel);
-
-
-        g2d.setTransform(old);
+        g2d.setTransform(old);}
     }
 
 
@@ -178,6 +193,40 @@ public class Snake {
                 ", playerNumber=" + playerNumber +
                 ", headDir=" + headDir +
                 '}';
+    }
+
+    public void setDirection(int direction){
+
+        if(Math.abs(direction-headDir)%2==1){
+            headDir=direction;
+        }
+
+    }
+
+    public void moveForward(){
+        coordinates.removeLast();
+        grow();
+
+    }
+
+    public void grow(){
+
+        Coordinate oldFirst =   coordinates.getFirst();
+        Coordinate newFirst = new Coordinate(oldFirst.getX(), oldFirst.getY());
+        if(headDir==0){
+            newFirst.setY(oldFirst.getY()-1);
+        }else if(headDir==1){
+            newFirst.setX(oldFirst.getX()+1);
+        }else if(headDir==2){
+            newFirst.setY(oldFirst.getY()+1);
+        }else if(headDir==3){
+            newFirst.setX(newFirst.getX()-1);
+        }
+        coordinates.addFirst(newFirst);
+
+        panelToDrawOn.repaint();
+
+
     }
 }
 

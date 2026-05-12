@@ -1,23 +1,29 @@
 package org.example;
 
-import javax.swing.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import org.example.GUI.lobby.LobbyPanel;
+import org.example.GUI.MainFrame;
+import org.example.GUI.waiitng.WaitingPanel;
+
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.example.Statics.Config.PORT;
 
 public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient {
 
-    private final static SnakeClientImp INSTANCE;
 
     private static ISnakeServer server;
-    public static JFrame gui;
+    private final static SnakeClientImp INSTANCE;
+
+   public static SnakeClientImp getInstance(){
+       return INSTANCE;
+   }
+
 
     int state = 0;
     //0 login page
@@ -27,49 +33,62 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
     int id = -1;//initially no id
 
+    private static final MainFrame mainFrame;
 
     static {
         try {
             INSTANCE = new SnakeClientImp();
+            mainFrame = new MainFrame(INSTANCE);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static StartPagePanel startPagePanel;
+ //   private static StartPagePanel startPagePanel;
 
     private boolean gameStarted = false;
 
     protected SnakeClientImp() throws RemoteException {
+
     }
 
     @Override
     public void startGame(List<Snake> snakes) throws RemoteException {
-
-
-        gameStarted = true;
+        if(state==3) {
+            gameStarted = true;
+        }else{
+            System.out.println("couldn't start game");
+        }
     }
 
     @Override
     public void displayMessage(String message) throws RemoteException {
-
         System.out.println(message);
     }
 
     @Override
     public void addToWaitingList() throws RemoteException {
 
+        if(state==0) {
+            state = 1;
+            mainFrame.showPage(WaitingPanel.class.getSimpleName());
+        }
     }
 
     @Override
     public void addToLobby() throws RemoteException {
 
+        if(state ==0){
+            state=2;
+            mainFrame.showPage(LobbyPanel.class.getSimpleName());
+        }
+
     }
 
     @Override
-    public void notifyChange(List<Snake> snakes) throws RemoteException {
-        if (gameStarted) {
-
+    public void notifyChange(ArrayList<Snake> snakes) throws RemoteException {
+        if (gameStarted && state==3) {
+            mainFrame.getMainGamePanel().redrawSnakes(snakes);
         } else {//still in the lobby
 
         }
@@ -80,7 +99,7 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     public void changeLabelText(String tetx) throws RemoteException {
 
         if (state == 0) {
-            startPagePanel.getMessageArea().setText(tetx);
+            //startPagePanel.getMessageArea().setText(tetx);
         }
     }
 
@@ -109,37 +128,6 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
     }
 
-
-    public static void main(String[] args) {
-
-     gui = new JFrame();
-        startPagePanel = new StartPagePanel(INSTANCE);
-
-        gui.setTitle("Snake Online - Connect");
-
-        gui.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        gui.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-
-                System.out.println("Window is closing");
-                INSTANCE.disconnect();
-
-                gui.dispose(); // closes window
-                System.exit(0); // optional
-            }
-        });
-        gui.add(startPagePanel);
-        gui.pack();
-        gui.setVisible(true);
-        gui.setLocationRelativeTo(null);
-
-        gui.setResizable(false);
-
-        //todo change title acc to game state
-    }
-
-
     public void disconnect() {
 
         if (server != null && id != -1) {
@@ -153,9 +141,20 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     }
 
     public void enterLobby() {
-        gui.remove(startPagePanel);
+       // gui.remove(startPagePanel);
 
        // gui.add(Lobby)
-        gui.pack();
+        //gui.pack();
     }
+
+
+    public void setDirection(int direction){
+        try {
+            server.setDirection(id,direction);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 }

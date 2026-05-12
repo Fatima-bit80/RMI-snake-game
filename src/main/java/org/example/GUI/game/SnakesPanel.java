@@ -1,6 +1,7 @@
-package org.example.game;
+package org.example.GUI.game;
 
 import org.example.Snake;
+import org.example.Statics.Coordinate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -8,12 +9,13 @@ import java.util.ArrayList;
 
 import static org.example.Statics.Images.backGroundImage;
 
-class GamePanel extends JPanel {
+class SnakesPanel extends JPanel {
 
     ArrayList<Snake> snakes;
 
-    public GamePanel(ArrayList<Snake> snakes) {
+    public SnakesPanel(ArrayList<Snake> snakes) {
         this.snakes = snakes;
+      setPanel();
     }
 
     @Override
@@ -25,7 +27,7 @@ class GamePanel extends JPanel {
         g2d.drawImage(backGroundImage, 0, 0, getWidth(), getHeight(), this);
 
         for (Snake snake : snakes) {
-            snake.drawSnake(g2d, this);
+            snake.drawSnake(g2d);
         }
 
 
@@ -33,7 +35,14 @@ class GamePanel extends JPanel {
 
     public void redrawSnakes(ArrayList<Snake> snakes) {
         this.snakes = snakes;
+        setPanel();
         repaint();
+    }
+
+    public void setPanel(){
+        for(Snake snake:snakes){
+            snake.setPanelToDrawOn(this);
+        }
     }
 
 }

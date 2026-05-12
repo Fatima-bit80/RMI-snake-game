@@ -1,9 +1,12 @@
-package org.example;
+package org.example.GUI.lobby;
+
+import org.example.GUI.GamePanel;
+import org.example.Snake;
 
 import javax.swing.*;
 import java.util.List;
 
-public class Lobby extends JPanel {
+public class LobbyPanel extends JPanel implements GamePanel {
 
     private int nbPlayers;
 
@@ -25,5 +28,10 @@ public class Lobby extends JPanel {
 
     public void setSnakes(List<Snake> snakes) {
         this.snakes = snakes;
+    }
+
+    @Override
+    public void displayMessage(String message) {
+
     }
 }

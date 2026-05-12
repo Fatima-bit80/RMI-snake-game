@@ -1,19 +1,23 @@
-package org.example;
+package org.example.GUI.start;
+
+import org.example.GUI.GamePanel;
+import org.example.GUI.MessagePanel;
+import org.example.SnakeClientImp;
 
 import static org.example.Statics.Config.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
-public class StartPagePanel extends JPanel {
+public class StartPagePanel extends JPanel implements GamePanel {
+
+    private final MessagePanel messagePanel;
 
     private final JLabel titleLabel;
     private final JLabel ipAddressLabel;
     private final JLabel nameLabel;
-    private final JTextArea messageArea;
+  //  private final JTextArea messageArea;
 
     private final JTextField ipAddressField;
     private final JTextField snakeNameField;
@@ -25,7 +29,8 @@ public class StartPagePanel extends JPanel {
     public StartPagePanel(SnakeClientImp snakeClient) {
 
         client = snakeClient;
-        setSize(TOTAL_WIDTH/3, GAME_HEIGHT*3/4);
+        setPreferredSize(new Dimension(TOTAL_WIDTH/3, GAME_HEIGHT*3/4));
+        System.out.println(TOTAL_WIDTH/3+" "+GAME_HEIGHT*3/4);
 
         JPanel background = new JPanel();
         background.setLayout(new GridBagLayout());
@@ -90,7 +95,8 @@ public class StartPagePanel extends JPanel {
         card.add(Box.createVerticalStrut(30));
 
         // Message Label
-        messageArea = new JTextArea("Enter your name and the server's ip address to connect to the game");
+        messagePanel = new MessagePanel(TOTAL_WIDTH/4,40,"Enter your name and the server's ip address to connect to the game");
+        JTextArea messageArea = messagePanel.getMessageArea();
         messageArea.setEditable(false);
         messageArea.setLineWrap(true);
         messageArea.setWrapStyleWord(true);
@@ -111,7 +117,9 @@ public class StartPagePanel extends JPanel {
 
     }
 
-    public JTextArea getMessageArea() {
-        return messageArea;
+
+    @Override
+    public void displayMessage(String message) {
+        messagePanel.displayMessage(message);
     }
 }

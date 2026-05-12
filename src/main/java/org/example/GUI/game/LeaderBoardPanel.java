@@ -1,4 +1,4 @@
-package org.example.game;
+package org.example.GUI.game;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

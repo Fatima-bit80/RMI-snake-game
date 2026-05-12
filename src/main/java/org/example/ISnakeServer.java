@@ -17,4 +17,6 @@ public interface ISnakeServer extends Remote {
     public void disconnect(int id) throws RemoteException;
     //if in lobby i leave
     //if in waitinf list i am removed
+
+    public void setDirection(int id, int direction) throws RemoteException;
 }
