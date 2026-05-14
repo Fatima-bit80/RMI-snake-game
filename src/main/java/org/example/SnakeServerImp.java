@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.example.Statics.Config.PORT;
+import static org.example.Statics.Config.*;
 
 public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer {
 
@@ -45,7 +45,7 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     }//initial positions of snakes
 
     private int nbPlayers = 0;
-    //players in the lobby
+    //players in the lobby or in game
     private final Map<Integer, ISnakeClient> players = new HashMap();
 
     //players unable to enter
@@ -73,56 +73,41 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         //todo save
 
 
-
-
         id++;
-        Snake s =createSnake(id,name,playerNumber);
-
-        snakes.put(id,s);
+        Snake s = createSnake(id, name, playerNumber, START);
+        snakes.put(id, s);
 
         if (nbPlayers <= 5) {
-            playerNumber = availableColors.get(0);
-            availableColors.remove((Object)playerNumber);
-            s.setPlayerNumber(playerNumber);
-            s.setCoordinates(initialPositions.get(playerNumber));
-
-
-            nbPlayers++;
-
-            String message = "connected successfully " + "your id is " + id;
-            System.out.println("player with id "+id+" connected successfully");
-            client.displayMessage(message);
-
-            client.displayMessage(s.toString());
-            client.changeLabelText(message);
-            gameStarted.put(id, false);
-            players.put(id, client);
-
-
-
-
-            client.addToLobby();
+            addToLobby(client, s);
         } else {
-            waitingList.put(id, client);
-            String message = "there are already enough players, you can't connect\ntry again another time";
-            client.displayMessage(message);
-
-
-            System.out.println("a player tried to connect but the lobby is full transforming to waiting list");
-            client.changeLabelText(message);
-            client.addToWaitingList();
+            addToWaitingList(client,s);
         }
-
 
         return id;
     }
 
-    private Snake createSnake(int id, String name, int playerNumber) {
+    private synchronized void addToWaitingList(ISnakeClient client, Snake s) throws RemoteException {
+        waitingList.put(id, client);
+        int snakeId=s.getId();
+        s.setState(WAITING);
+        String message = "there are already enough players, you can't connect\ntry again another time";
+        client.displayMessage(message);
 
-        Snake s = new Snake(playerNumber,null,2,id,name);
 
-        if(playerNumber!=-1)
-           s.setCoordinates(initialPositions.get(playerNumber));
+        System.out.println("a player with id "+snakeId+" to connect but the lobby is full transforming to waiting list");
+        client.changeLabelText(message);
+        client.addToWaitingList();
+        client.updateWaitingList(snakes,new ArrayList<>(waitingList.keySet()));
+        sendMessage("snake with id "+ snakeId+"was added to the waiting list",WAITING);
+
+    }
+
+    private Snake createSnake(int id, String name, int playerNumber, int state) {
+
+        Snake s = new Snake(playerNumber, null, 2, id, name, state);
+
+        if (playerNumber != -1)
+            s.setCoordinates(initialPositions.get(playerNumber));
 
         return s;
     }
@@ -130,16 +115,20 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     @Override
     public synchronized void disconnect(int id) throws RemoteException {
 
+        //todo if heart beat not sent -> disconnect
+       Snake s = snakes.get(id);
+        snakes.remove(id);
+
 
         if (players.containsKey(id)) {
-           int playerNumber = snakes.get(id).getPlayerNumber();
-           availableColors.add(playerNumber);
+            int playerNumber = s.getPlayerNumber();
+            availableColors.add(playerNumber);
 
 
             ArrayList<Coordinate> snakeCoordinate = new ArrayList<>();
 
             snakeCoordinate.add(new Coordinate((playerNumber + 2) * 4, 6));
-            snakeCoordinate.add(new Coordinate((playerNumber+ 2) * 4, 5));
+            snakeCoordinate.add(new Coordinate((playerNumber + 2) * 4, 5));
             snakeCoordinate.add(new Coordinate((playerNumber + 2) * 4, 4));
 
             initialPositions.add(snakeCoordinate);
@@ -148,12 +137,14 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
             players.remove(id);
             nbPlayers--;
 
-        } else waitingList.remove(id);
+        } else if(waitingList.containsKey(id)){
+            waitingList.remove(id);
+            notifyAllPlayersInWaitingList();
+        }
 
-        snakes.remove(id);
 
 
-        System.out.println("player with id "+id+" disconnected successfully");
+        System.out.println("player with id " + id + " disconnected successfully");
 
         if (nbPlayers < 6 && !waitingList.isEmpty()) {
             int addedPlayer = (int) (waitingList.keySet().toArray())[0];
@@ -163,17 +154,17 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
             waitingList.remove(addedPlayer);
 
 
-            Snake s = snakes.get(addedPlayer);
+            Snake ss = snakes.get(addedPlayer);
             int color = availableColors.get(0);
-            s.setPlayerNumber(color);
-            s.setCoordinates(initialPositions.get(addedPlayer));
+            ss.setPlayerNumber(color);
+            ss.setCoordinates(initialPositions.get(addedPlayer));
 
-            String message = "you are now playing " + "your id is " + id+"  snake : "+s;
+            String message = "you are now playing " + "your id is " + id + "  snake : " + ss;
 
             client.displayMessage(message);
             client.changeLabelText(message);
             gameStarted.put(id, false);
-            client.addToLobby();
+            client.addToLobby(snakes,new ArrayList<>(players.keySet()));
 
 
             nbPlayers++;
@@ -183,7 +174,12 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     @Override
     public void setDirection(int id, int direction) throws RemoteException {
 
-            snakes.get(id).setDirection(direction);
+        snakes.get(id).setDirection(direction);
+
+    }
+
+    @Override
+    public void heartbeat(int id) throws RemoteException {
 
     }
 
@@ -215,6 +211,80 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
     }
 
+
+
+    public synchronized void addToLobby(ISnakeClient client, Snake s) throws RemoteException {
+        int snakeId=s.getId();
+        int playerNumber = availableColors.get(0);
+        availableColors.remove((Object) playerNumber);
+        s.setPlayerNumber(playerNumber);
+        s.setCoordinates(initialPositions.get(playerNumber));
+
+        nbPlayers++;
+
+        String message = "connected successfully " + "your id is " + snakeId;
+        System.out.println("player with id " + snakeId + " connected successfully");
+        client.displayMessage(message);
+        client.displayMessage(s.toString());
+        client.changeLabelText(message);
+
+        gameStarted.put(snakeId, false);
+
+        players.put(snakeId, client);
+        s.setState(LOBBY);
+
+        client.addToLobby(snakes,new ArrayList<>(players.keySet()));
+        //todo change panel to view lobby panel
+
+
+        notifyAllPlayersInLobby();
+        sendMessage("player with id "+snakeId+"was added to the lobby",LOBBY);
+
+    }
+
+    public void notifyAllPlayersInLobby() {
+        for (int i : players.keySet()) {
+            ISnakeClient c = players.get(i);
+            try {
+                c.updateLobby(snakes, new ArrayList<>(players.keySet()));
+                c.displayMessage("the players ids: " + players.keySet());
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
+
+    public void notifyAllPlayersInWaitingList() {
+        for (int i : waitingList.keySet()) {
+            ISnakeClient c = waitingList.get(i);
+            try {
+                c.updateWaitingList(snakes,new ArrayList<>(waitingList.keySet()));
+                c.displayMessage("the waiting list ids: " + players.keySet());
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+
+        }    }
+
+    public void sendMessage(String message,int state) throws RemoteException {
+        if(state == LOBBY || state == GAME)
+            {
+                for (ISnakeClient c : players.values()) {
+                    c.displayMessage(message);
+                }
+            }
+            else if(state == WAITING) {
+                for (ISnakeClient c : waitingList.values()) {
+                    c.displayMessage(message);
+                }
+
+            }
+
+
+    }
+
+
     public static void main(String[] args) {
 
         try {
@@ -228,18 +298,6 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
         } catch (RemoteException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public void notifyAllPlayers(){
-        for(int i: players.keySet()){
-            ISnakeClient c =  (ISnakeClient) players.get(i);
-            try {
-                c.displayMessage("the players ids: "+players.keySet());
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-
         }
     }
 }

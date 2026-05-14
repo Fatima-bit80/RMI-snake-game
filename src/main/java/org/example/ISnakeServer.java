@@ -19,4 +19,6 @@ public interface ISnakeServer extends Remote {
     //if in waitinf list i am removed
 
     public void setDirection(int id, int direction) throws RemoteException;
+
+   public void heartbeat(int id) throws  RemoteException;
 }

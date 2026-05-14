@@ -39,7 +39,7 @@ public class MainFrame extends JFrame {
 
         //panels
         mainGamePanel = new MainGamePanel(clientImp);
-        startPagePanel = new StartPagePanel(null);
+        startPagePanel = new StartPagePanel(clientImp);
         lobbyPanel = new LobbyPanel();
         waitingPanel = new WaitingPanel();
 
@@ -75,6 +75,8 @@ public class MainFrame extends JFrame {
                 System.exit(0); // optional
             }
         });
+
+        showPage(StartPagePanel.class.getSimpleName());
     }
 
     private void initializeMap() {
@@ -103,6 +105,17 @@ public class MainFrame extends JFrame {
             currentComponent.requestFocusInWindow();
         }
             cardLayout.show(container, pageName);
+
+        Dimension size = currentComponent.getPreferredSize();
+
+        container.setPreferredSize(size);
+
+        pack();
+
+        setLocationRelativeTo(null);
+
+        currentComponent.requestFocusInWindow();
+
     }
 
 

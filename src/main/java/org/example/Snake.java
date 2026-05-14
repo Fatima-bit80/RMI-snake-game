@@ -1,18 +1,21 @@
 package org.example;
 
 import org.example.Enums.ColorCode;
+import org.example.GUI.GamePanel;
+import org.example.GUI.game.SnakesPanel;
 import org.example.Statics.Coordinate;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static org.example.Statics.Config.TEXT_OFFSET;
 import static org.example.Statics.Config.TILE_SIZE;
 import static org.example.Statics.Images.snakeImage;
 
-public class Snake {
+public class Snake implements Serializable {
 
     public int id;
     public String name;
@@ -20,26 +23,34 @@ public class Snake {
     public ArrayList<Coordinate> coordinates;
     public int headDir;
 
-    private JPanel panelToDrawOn;
+   private transient JPanel panelToDrawOn;
 //    0 up
 //    1 right
 //    2 down
 //    3 left
 
 
+    public int state=0;
+    //0 -> start
+    //1 -> lobby
+    //2 -> waiting
+    //3 -> game
 
 
 
-    public Snake(int playerNumber, ArrayList<Coordinate> coordinates, int headDir, int id, String name) {
+
+
+    public Snake(int playerNumber, ArrayList<Coordinate> coordinates, int headDir, int id, String name,int state) {
         this.playerNumber = playerNumber        ;
         this.coordinates = coordinates;
         this.headDir = headDir;
         this.id = id;
         this.name = name;
+        this.state = state;
     }
 
     public void setPanelToDrawOn(JPanel panelToDrawOn) {
-        this.panelToDrawOn = panelToDrawOn;
+      //  this.panelToDrawOn = panelToDrawOn;
     }
 
     public int getPlayerNumber() {
@@ -82,6 +93,13 @@ public class Snake {
         this.name = name;
     }
 
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+    }
 
     public void drawSnake(Graphics2D g2d) {
         if(panelToDrawOn != null) {

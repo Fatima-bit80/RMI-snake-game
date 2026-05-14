@@ -9,12 +9,16 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static org.example.Statics.Config.PORT;
 
 public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient {
+
+    private final ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
 
 
     private static ISnakeServer server;
@@ -62,6 +66,11 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     }
 
     @Override
+    public void updateGame(List<Snake> snakes) throws RemoteException {
+
+    }
+
+    @Override
     public void displayMessage(String message) throws RemoteException {
         System.out.println(message);
     }
@@ -76,12 +85,18 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     }
 
     @Override
-    public void addToLobby() throws RemoteException {
+    public void addToLobby(Map<Integer, Snake> players,ArrayList<Integer> ids) throws RemoteException {
 
         if(state ==0){
             state=2;
             mainFrame.showPage(LobbyPanel.class.getSimpleName());
+            updateLobby(players,ids);
         }
+
+    }
+
+    @Override
+    public void updateLobby(Map<Integer, Snake> players, ArrayList<Integer> ids) throws RemoteException {
 
     }
 
@@ -103,6 +118,21 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
         }
     }
 
+    @Override
+    public void updateWaitingList(Map<Integer, Snake> snakes, ArrayList<Integer> integers) throws RemoteException {
+
+    }
+
+    @Override
+    public void enableStartButton() throws RemoteException {
+
+    }
+
+    @Override
+    public void disableStartButton() throws RemoteException {
+
+    }
+
     public void connectToTheServer(String ip, String name) {
         try {
 
@@ -117,6 +147,13 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
             if(id>-1){
 
             }
+
+
+            heartbeatScheduler.scheduleAtFixedRate(() -> {
+                try {
+                    server.heartbeat(id);
+                } catch (Exception ignored) {}
+            }, 1, 2, TimeUnit.SECONDS);
 
         } catch (NotBoundException e) {
             throw new RuntimeException(e);
@@ -154,6 +191,11 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
+
+        mainFrame.setVisible(true);
     }
 
 

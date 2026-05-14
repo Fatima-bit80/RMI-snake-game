@@ -3,6 +3,7 @@ package org.example.GUI.start;
 import org.example.GUI.GamePanel;
 import org.example.GUI.MessagePanel;
 import org.example.SnakeClientImp;
+import org.example.Statics.Images;
 
 import static org.example.Statics.Config.*;
 
@@ -11,6 +12,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class StartPagePanel extends JPanel implements GamePanel {
+
+
+
+    private final Image backgroundImage;
 
     private final MessagePanel messagePanel;
 
@@ -26,100 +31,156 @@ public class StartPagePanel extends JPanel implements GamePanel {
 
     private final SnakeClientImp client;
 
+    private final Image titleImage;
+
+    private int fieldWidth = 200;
+
     public StartPagePanel(SnakeClientImp snakeClient) {
+        backgroundImage= Images.startBack;
+        titleImage = Images.snakesGame.getScaledInstance(425,53,Image.SCALE_SMOOTH);
 
         client = snakeClient;
-        setPreferredSize(new Dimension(TOTAL_WIDTH/3, GAME_HEIGHT*3/4));
-        System.out.println(TOTAL_WIDTH/3+" "+GAME_HEIGHT*3/4);
+        setPreferredSize(new Dimension(TOTAL_WIDTH/3+100, GAME_HEIGHT*3/4+50));
 
-        JPanel background = new JPanel();
-        background.setLayout(new GridBagLayout());
-        background.setBackground(Color.WHITE);
+        setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 
-        // Create card
-        JPanel card = new JPanel();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(Color.LIGHT_GRAY);
-        card.setBorder(new EmptyBorder(30, 30, 30, 30));
+
+           setBorder(new EmptyBorder(70, 70, 70, 70));
 
         // Title
-        titleLabel = new JLabel("SNAKE ONLINE");
+        titleLabel = new JLabel(new ImageIcon(titleImage));
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 40));
-        card.add(titleLabel);
-        card.add(Box.createVerticalStrut(10));
+        add(titleLabel);
+        add(Box.createVerticalStrut(20));
 
         // Subtitle
         JLabel subtitle = new JLabel("Connect to a server and play");
         subtitle.setAlignmentX(Component.CENTER_ALIGNMENT);
-        subtitle.setFont(new Font("Arial", Font.PLAIN, 14));
-        card.add(subtitle);
-        card.add(Box.createVerticalStrut(30));
+        subtitle.setForeground(LIGHT_GREEN_COLOR);
+        subtitle.setFont(pixelFont.deriveFont(12f));
+        add(subtitle);
+        add(Box.createVerticalStrut(25));
 
         // IP Address
         ipAddressLabel = new JLabel("IP Address");
         ipAddressLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        ipAddressLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        card.add(ipAddressLabel);
-        card.add(Box.createVerticalStrut(10));
+        ipAddressLabel.setFont(pixelFont.deriveFont(14f));
+        ipAddressLabel.setForeground(LIGHT_GREEN_COLOR);
+        add(ipAddressLabel);
+        add(Box.createVerticalStrut(10));
+
 
         ipAddressField = new JTextField();
+        ipAddressField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(LIGHT_GREEN_COLOR, 2),
+                new EmptyBorder(8, 12, 8, 12)
+        ));
+        ipAddressField.setCaretColor(LIGHT_GREEN_COLOR);
+        ipAddressField.setBackground(DARK_GREEN_COLOR);
+        ipAddressField.setForeground(LIGHT_GREEN_COLOR);
         ipAddressField.setText("127.0.0.1");
         ipAddressField.setHorizontalAlignment(JTextField.CENTER);
-        ipAddressField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        ipAddressField.setFont(new Font("Arial", Font.PLAIN, 14));
-        card.add(ipAddressField);
-        card.add(Box.createVerticalStrut(30));
+        ipAddressField.setMaximumSize(new Dimension(fieldWidth, 60));
+        ipAddressField.setFont(pixelFont.deriveFont(16f));
+        add(ipAddressField);
+        add(Box.createVerticalStrut(25));
 
         // Snake Name
         nameLabel = new JLabel("Snake Name");
         nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        card.add(nameLabel);
-        card.add(Box.createVerticalStrut(10));
+        nameLabel.setFont(pixelFont.deriveFont(14f));
+        nameLabel.setForeground(LIGHT_GREEN_COLOR);
+        add(nameLabel);
+        add(Box.createVerticalStrut(10));
 
         snakeNameField = new JTextField();
+        snakeNameField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(LIGHT_GREEN_COLOR, 2),
+                new EmptyBorder(8, 12, 8, 12)
+        ));
+        snakeNameField.setBackground(DARK_GREEN_COLOR);
+        snakeNameField.setCaretColor(LIGHT_GREEN_COLOR);
+        snakeNameField.setForeground(LIGHT_GREEN_COLOR);
         snakeNameField.setHorizontalAlignment(JTextField.CENTER);
-        snakeNameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
-        snakeNameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        card.add(snakeNameField);
-        card.add(Box.createVerticalStrut(30));
+        snakeNameField.setMaximumSize(new Dimension(fieldWidth, 60));
+        snakeNameField.setFont(pixelFont.deriveFont(16f));
+        add(snakeNameField);
+        add(Box.createVerticalStrut(45));
 
         // Connect Button
         connectButton = new JButton("CONNECT");
+        connectButton.setBackground(DARK_GREEN_COLOR);
         connectButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        connectButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-        connectButton.setFont(new Font("Arial", Font.BOLD, 16));
+        connectButton.setFocusPainted(false);
+        connectButton.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(LIGHT_GREEN_COLOR, 2),
+                new EmptyBorder(12, 25, 12, 25) // top, left, bottom, right padding
+        ));
+        connectButton.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
+        connectButton.setMaximumSize(new Dimension(200, 60));
+        connectButton.setFont(pixelFont.deriveFont(16f));
+        connectButton.setForeground(LIGHT_GREEN_COLOR);
         connectButton.addActionListener(e -> client.connectToTheServer(ipAddressField.getText(),snakeNameField.getText()));
-        card.add(connectButton);
-        card.add(Box.createVerticalStrut(30));
+        add(connectButton);
+        add(Box.createVerticalStrut(30));
 
         // Message Label
         messagePanel = new MessagePanel(TOTAL_WIDTH/4,40,"Enter your name and the server's ip address to connect to the game");
         JTextArea messageArea = messagePanel.getMessageArea();
         messageArea.setEditable(false);
+        messageArea.setBackground(DARK_GREEN_COLOR);
+        messageArea.setForeground(LIGHT_GREEN_COLOR);
         messageArea.setLineWrap(true);
         messageArea.setWrapStyleWord(true);
-        messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        messageArea.setBackground(Color.WHITE);
+        messageArea.setFont(pixelFont.deriveFont(14f));
         messageArea.setAlignmentX(Component.CENTER_ALIGNMENT);
-        card.add(messageArea);
+        add(messageArea);
 
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 15, 15, 15);
-        background.add(card, gbc);
 
-        add(background);
+
         setVisible(true);
 
 
 
 
+
     }
+    @Override
+    protected void paintComponent(Graphics g) {
+
+        super.paintComponent(g);
+
+        Graphics2D g2d = (Graphics2D) g;
+
+        // BACKGROUND IMAGE
+        g2d.drawImage(
+                backgroundImage,
+                0,
+                0,
+                getWidth(),
+                getHeight(),
+                this
+        );
+
+        // TRANSPARENT BLACK OVERLAY
+        g2d.setColor(new Color(0, 0, 0, 150));
+
+        g2d.fillRect(
+                0,
+                0,
+                getWidth(),
+                getHeight()
+        );
+    }
+
 
 
     @Override
     public void displayMessage(String message) {
         messagePanel.displayMessage(message);
     }
+
+
 }

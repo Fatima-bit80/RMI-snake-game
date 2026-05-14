@@ -23,9 +23,9 @@ public class Images {
     public static final Image side3 = new ImageIcon("src/main/resources/background/grassSide3.png").getImage();
 
 
+public static final Image snakesGame = new ImageIcon("src/main/resources/titles/snakes game.png").getImage();
 
-
-
+public static final Image startBack = new ImageIcon("src/main/resources/titles/startBack.png").getImage();
     public static final BufferedImage backGroundImage = new BufferedImage(GAME_WIDTH, GAME_HEIGHT, BufferedImage.TYPE_INT_ARGB);
 
     static {

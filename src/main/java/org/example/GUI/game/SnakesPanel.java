@@ -5,11 +5,12 @@ import org.example.Statics.Coordinate;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static org.example.Statics.Images.backGroundImage;
 
-class SnakesPanel extends JPanel {
+public class SnakesPanel extends JPanel implements Serializable {
 
     ArrayList<Snake> snakes;
 

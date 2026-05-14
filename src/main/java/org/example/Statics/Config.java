@@ -1,5 +1,9 @@
 package org.example.Statics;
 
+import org.example.FontLoader;
+
+import java.awt.*;
+
 public class Config {
 
 
@@ -27,5 +31,35 @@ public class Config {
     public static final int DOWN =2;
     public static final int LEFT =3;
     public static final int RIGHT =1;
+
+
+
+    public static final int START = 0;
+    public static final int LOBBY = 1;
+    public static final int WAITING = 2;
+    public static final int GAME = 3;
+
+    public static final int MAX_NB_PLAYERS =4;
+
+    private static final String lightGreenHex = "#A1BF8AFF";
+    public static final Color LIGHT_GREEN_COLOR =  new Color(
+            Integer.parseInt(lightGreenHex.substring(1, 3), 16),
+            Integer.parseInt(lightGreenHex.substring(3, 5), 16),
+            Integer.parseInt(lightGreenHex.substring(5, 7), 16),
+            Integer.parseInt(lightGreenHex.substring(7, 9), 16)
+    );
+
+
+
+    private static final String darkGreenHex = "#253B14FF";
+    public static final Color DARK_GREEN_COLOR =  new Color(
+            Integer.parseInt(darkGreenHex.substring(1, 3), 16),
+            Integer.parseInt(darkGreenHex.substring(3, 5), 16),
+            Integer.parseInt(darkGreenHex.substring(5, 7), 16),
+            Integer.parseInt(darkGreenHex.substring(7, 9), 16)
+    );
+
+   public static final Font pixelFont = FontLoader.loadPixelFont(16f);
+
 
 }
