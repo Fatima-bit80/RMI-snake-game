@@ -22,14 +22,13 @@ import static org.example.Statics.Config.*;
 public class LobbyPanel extends JPanel implements GamePanel {
 
 
-    private Map<Integer,Snake> snakes;
+    private Map<Integer,Snake> snakes = new HashMap<>();
     private int id;
     private ISnakeServer server;
 
-    private Map<Integer,JLabel> statuses;
-    private Map<Integer,ImagePanel> images;
-
-    private ArrayList<String> messages;
+    private Map<Integer,JLabel> statuses = new HashMap<>();
+    private Map<Integer,ImagePanel> images = new HashMap<>();
+    private ArrayList<String> messages= new ArrayList<>();
 
 
     private JPanel playersContainer;
@@ -51,12 +50,11 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
 
 
-    public LobbyPanel(ISnakeServer server, int id,Map<Integer,Snake> snakes,ArrayList<String> messages) throws RemoteException {
+    public LobbyPanel(ISnakeServer server, int id) throws RemoteException {
 
         this.server=server;
         this.id = id;
-        this.snakes=snakes;
-        this.messages=messages;
+
 
         statuses = new HashMap<>();
         images= new HashMap<>();
@@ -67,7 +65,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
 
         // TOP PANEL
-        topPanel = new JPanel();
+        topPanel = new JPanel(new BorderLayout());
         initializeTopPanel();
         add(topPanel, BorderLayout.NORTH);
 
@@ -84,23 +82,36 @@ public class LobbyPanel extends JPanel implements GamePanel {
         add(bottomPanel, BorderLayout.SOUTH);
 
 
-        // TEST DATA
-        addPlayer(new Snake(0,null,0,0,"Fatima",1,true));
-        addPlayer(new Snake(1,null,0,1,"John",1,false));
-        addPlayer(new Snake(2,null,0,2,"Maha",1,false));
-        addPlayer(new Snake(3,null,0,3,"Alisar",1,false));
-        addPlayer(new Snake(4,null,0,4,"Maryam",1,true));
-        addPlayer(new Snake(5,null,0,5,"Reem",1,true));
-        addPlayer(new Snake(0,null,0,6,"Mike",1,false));
-        addPlayer(new Snake(1,null,0,7,"Alex",1,true));
-        addPlayer(new Snake(2,null,0,8,"Bob",1,false));
-        addPlayer(new Snake(3,null,0,9,"Alice",1,true));
+//        // TEST DATA
+//        addPlayer(new Snake(0,null,0,0,"Fatima",1,true));
+//        addPlayer(new Snake(1,null,0,1,"John",1,false));
+//        addPlayer(new Snake(2,null,0,2,"Maha",1,false));
+//        addPlayer(new Snake(3,null,0,3,"Alisar",1,false));
+//        addPlayer(new Snake(4,null,0,4,"Maryam",1,true));
+//        addPlayer(new Snake(5,null,0,5,"Reem",1,true));
+//        addPlayer(new Snake(0,null,0,6,"Mike",1,false));
+//        addPlayer(new Snake(1,null,0,7,"Alex",1,true));
+//        addPlayer(new Snake(2,null,0,8,"Bob",1,false));
+//        addPlayer(new Snake(3,null,0,9,"Alice",1,true));
 
 
-displayMessage("hi");
-displayMessage("hello");
-displayMessage("yay");
+//displayMessage("hi");
+//displayMessage("hello");
+//displayMessage("yay");
     }
+
+
+    public ArrayList<String> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(ArrayList<String> messages) {
+        this.messages = messages;
+        for (String message : messages) {
+            displayMessage(message);
+        }
+    }
+
 
 
     private void initializeTopPanel() {
@@ -112,7 +123,9 @@ displayMessage("yay");
         title.setFont(FontLoader.loadPixelFont(30f));
         title.setAlignmentX(CENTER_ALIGNMENT);
 
-        topPanel.add(title);
+        topPanel.add(title,BorderLayout.WEST);
+
+
     }
 
     private void initializeCenterPanel() throws RemoteException{
@@ -151,7 +164,7 @@ displayMessage("yay");
         // CHAT AREA
 
         chatContainer = new JPanel();
-        chatContainer.setLayout(new BoxLayout(playersContainer, BoxLayout.Y_AXIS));
+        chatContainer.setLayout(new BoxLayout(chatContainer, BoxLayout.Y_AXIS));
         chatContainer.setBackground(DARKER_GREEN_COLOR);
         chatContainer.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
 
@@ -322,12 +335,17 @@ displayMessage("yay");
     }
 
     public void setSnakes(Map<Integer,Snake> snakes) {
+        System.out.println(snakes);
         this.snakes = snakes;
+        for(Snake s: snakes.values()){
+            addPlayer(s);
+        }
     }
 
 
-
-
+    public void setServer(ISnakeServer server) {
+        this.server = server;
+    }
 
     // ADD PLAYER
     public void addPlayer(Snake s) {
@@ -341,10 +359,18 @@ displayMessage("yay");
 
         card.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel left = new JPanel();
+        left.setLayout(new BoxLayout(left, BoxLayout.X_AXIS));
         left.setOpaque(false);
 
-        ImagePanel snakePreview = new ImagePanel(Images.snakeImage[s.getPlayerNumber()][0],30,30);
+
+        ImagePanel snakePreview = new ImagePanel(Images.snakeImage[s.getPlayerNumber()][0],40,40);
+        JPanel imageWrapper = new JPanel(new GridBagLayout());
+        imageWrapper.setOpaque(false);
+
+        imageWrapper.add(snakePreview);
+
+        imageWrapper.setAlignmentY(Component.CENTER_ALIGNMENT);
 
 
         JLabel nameLabel = new JLabel(s.getName());
@@ -352,8 +378,10 @@ displayMessage("yay");
         nameLabel.setForeground(DARKER_GREEN_COLOR);
 
         nameLabel.setFont(FontLoader.loadPixelFont(10f));
+        nameLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        left.add(snakePreview);
+
+        left.add(imageWrapper);
         left.add(Box.createHorizontalStrut(10));
         left.add(nameLabel);
 
@@ -365,6 +393,7 @@ displayMessage("yay");
 
         card.add(left, BorderLayout.WEST);
         card.add(status, BorderLayout.EAST);
+
 
         playersContainer.add(card);
         playersContainer.add(Box.createVerticalStrut(10));
@@ -440,18 +469,30 @@ displayMessage("yay");
         for(int i=2;i<parts.length;i++) {
             msg += parts[i];
         }
+        System.out.println(msg);
 
-        int playerNumber = snakes.get(playerId).getPlayerNumber();
 
-     String colorHex = ColorCode.fromCode(playerNumber).getColorHex();
-     Color color = ColorCode.getColor(colorHex);
+        int playerNumber = -1;
+
+        if(playerId!=0)
+        playerNumber = snakes.get(playerId).getPlayerNumber();
+
+
+        Color color;
+        if(playerNumber!=-1) {
+            String colorHex = ColorCode.fromCode(playerNumber).getColorHex();
+            color = ColorCode.getColor(colorHex);
+        }else {
+            color = Color.BLACK;
+        }
 
 
 
         JPanel messagePanel = new JPanel(new BorderLayout());
-        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         messagePanel.setBackground(DARK_GREEN_COLOR);
-        messagePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        messagePanel.setBorder(new EmptyBorder(0, 5, 0, 5));
+
 
         JLabel name = new JLabel(playerName+":");
         name.setForeground(color);
@@ -461,11 +502,13 @@ displayMessage("yay");
 
 
         JLabel messageLabel = new JLabel(msg);
-        messageLabel.setForeground(LIGHT_GREEN_COLOR);
+        messageLabel.setForeground(Color.black);
+        messageLabel.setBackground(DARKER_GREEN_COLOR);
         messageLabel.setFont(FontLoader.loadPixelFont(10f));
 
+
         messagePanel.add(name, BorderLayout.WEST);
-        messagePanel.add(messageLabel, BorderLayout.EAST);
+        messagePanel.add(messageLabel, BorderLayout.CENTER);
 
 
 
@@ -523,7 +566,7 @@ displayMessage("yay");
 
 
             try {
-                frame.setContentPane(new LobbyPanel(null, -1,null,null));
+                frame.setContentPane(new LobbyPanel(null, -1));
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
@@ -535,4 +578,33 @@ displayMessage("yay");
         });
     }
 
+    public void updateTopPanel() {
+        JPanel left = new JPanel(new BorderLayout());
+        System.out.println(id);
+        System.out.println(snakes);
+
+        Snake s = snakes != null ? snakes.get(id) : null;
+        if (s == null) return;
+
+
+        int playerNumber = s.getPlayerNumber();
+        String hex = ColorCode.fromCode(playerNumber).getColorHex();
+        Color c = ColorCode.getColor(hex);
+
+
+        String name = s.getName();
+
+        ImagePanel image = new ImagePanel(Images.snakeImage[s.getPlayerNumber()][0],60,60);
+
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setForeground(c);
+        nameLabel.setFont(FontLoader.loadPixelFont(40f));
+
+        left.add(image, BorderLayout.EAST);
+        left.add(nameLabel, BorderLayout.WEST);
+
+        topPanel.add(left, BorderLayout.EAST);
+
+
+    }
 }

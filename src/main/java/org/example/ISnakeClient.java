@@ -16,8 +16,8 @@ public interface ISnakeClient extends Remote {
 
 
     public void addToWaitingList() throws RemoteException;
-    public void addToLobby(Map<Integer, Snake> players,ArrayList<Integer> ids) throws RemoteException, InterruptedException;
-    public void updateLobby(Map<Integer, Snake> players, ArrayList<Integer> ids) throws RemoteException;
+    public void addToLobby(Map<Integer, Snake> players, ArrayList<Integer> ids,ArrayList<String> lobbyMessages) throws RemoteException, InterruptedException;
+    public void updateLobby(Snake s) throws RemoteException;
 
     public void notifyChange(ArrayList<Snake> snakes) throws RemoteException;
 

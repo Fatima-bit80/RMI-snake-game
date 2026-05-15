@@ -31,6 +31,8 @@ public class MainFrame extends JFrame {
     private final WaitingPanel waitingPanel;
     private final SnakeClientImp clientImp;
 
+    private ISnakeServer snakeServer;
+
     private int id=-1;
 
     public void setId(int id) {
@@ -41,14 +43,15 @@ public class MainFrame extends JFrame {
 
     public MainFrame(SnakeClientImp clientImp, ISnakeServer server, int id) throws RemoteException {
         this.clientImp = clientImp;
+        this.snakeServer = server;
 
         cardLayout = new CardLayout();
         container = new JPanel(cardLayout);
 
         //panels
-        mainGamePanel = new MainGamePanel(clientImp,-1);
+        mainGamePanel = new MainGamePanel(server,clientImp,-1);
         startPagePanel = new StartPagePanel(clientImp);
-        lobbyPanel = new LobbyPanel(server,-1,null,null);
+        lobbyPanel = new LobbyPanel(server,-1);
         waitingPanel = new WaitingPanel();
 
         pageTitle = new HashMap<>();
@@ -61,7 +64,7 @@ public class MainFrame extends JFrame {
         container.add(mainGamePanel, mainGamePanel.getClass().getSimpleName());
         container.add(startPagePanel,startPagePanel.getClass().getSimpleName());
         container.add(lobbyPanel,lobbyPanel.getClass().getSimpleName());
-        container.add(startPagePanel,startPagePanel.getClass().getSimpleName());
+        container.add(waitingPanel,waitingPanel.getClass().getSimpleName());
 
 
         add(container);
@@ -129,6 +132,11 @@ public class MainFrame extends JFrame {
 
     }
 
+    public void setSnakeServer(ISnakeServer snakeServer) {
+        lobbyPanel.setServer(snakeServer);
+        mainGamePanel.setSnakeServer(snakeServer);
+        this.snakeServer = snakeServer;
+    }
 
     public LobbyPanel getLobbyPanel() {
         return lobbyPanel;

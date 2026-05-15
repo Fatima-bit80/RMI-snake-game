@@ -2,6 +2,7 @@ package org.example.GUI.game;
 
 import org.example.GUI.GamePanel;
 import org.example.GUI.MessagePanel;
+import org.example.ISnakeServer;
 import org.example.Snake;
 import org.example.SnakeClientImp;
 import org.example.Statics.Config;
@@ -18,10 +19,12 @@ import static org.example.Statics.Config.*;
 public class MainGamePanel extends JPanel implements GamePanel {
 
     private final SnakeClientImp snakeClientImp;
+    private ISnakeServer snakeServer;
 
     private final SnakesPanel gamePanel;
     private final LeaderBoardPanel leaderBoardPanel;
     private final MessagePanel messagePanel;
+
 
     private int id;
 
@@ -29,8 +32,9 @@ public class MainGamePanel extends JPanel implements GamePanel {
         this.id = id;
     }
 
-    public MainGamePanel(SnakeClientImp  snakeClient, int id) {
+    public MainGamePanel(ISnakeServer server, SnakeClientImp  snakeClient, int id) {
         snakeClientImp = snakeClient;
+        this.snakeServer = server;
 
         setPreferredSize(new Dimension(TOTAL_WIDTH,GAME_HEIGHT));
         gamePanel= new SnakesPanel(new ArrayList<>());
@@ -49,8 +53,11 @@ public class MainGamePanel extends JPanel implements GamePanel {
 
     }
 
+    public void setSnakeServer(ISnakeServer snakeServer) {
+        this.snakeServer = snakeServer;
+    }
+
     private void addKeyListeners() {
-        System.out.println("added key listeners");
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -107,7 +114,7 @@ public class MainGamePanel extends JPanel implements GamePanel {
 
         JFrame frame = new JFrame();
 
-        MainGamePanel game =  new MainGamePanel(SnakeClientImp.getInstance(),-1);
+        MainGamePanel game =  new MainGamePanel(null, SnakeClientImp.getInstance(),-1);
 
         frame.add(game);
 

@@ -61,7 +61,6 @@ public static final Image startBack = new ImageIcon("src/main/resources/titles/s
             for (int j = 0; j < 3; j++) {
                 String colorName = ColorCode.fromCode(i).getDisplayName();
                 String snakePart= SnakePartCode.fromCode(j).getSnakePart();
-                System.out.println("src/main/resources/snake/"+colorName+"/"+snakePart+".png");
                 snakeImage[i][j] = new ImageIcon("src/main/resources/snake/"+colorName+"/"+snakePart+".png").getImage();
             }
         }
