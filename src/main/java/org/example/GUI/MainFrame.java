@@ -48,7 +48,7 @@ public class MainFrame extends JFrame {
         //panels
         mainGamePanel = new MainGamePanel(clientImp,-1);
         startPagePanel = new StartPagePanel(clientImp);
-        lobbyPanel = new LobbyPanel(server,-1,null);
+        lobbyPanel = new LobbyPanel(server,-1,null,null);
         waitingPanel = new WaitingPanel();
 
         pageTitle = new HashMap<>();

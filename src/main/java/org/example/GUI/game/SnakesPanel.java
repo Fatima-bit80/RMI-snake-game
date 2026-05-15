@@ -1,7 +1,6 @@
 package org.example.GUI.game;
 
 import org.example.Snake;
-import org.example.Statics.Coordinate;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +15,7 @@ public class SnakesPanel extends JPanel implements Serializable {
 
     public SnakesPanel(ArrayList<Snake> snakes) {
         this.snakes = snakes;
-      setPanel();
+        setPanel();
     }
 
     @Override
@@ -40,10 +39,11 @@ public class SnakesPanel extends JPanel implements Serializable {
         repaint();
     }
 
-    public void setPanel(){
-        for(Snake snake:snakes){
+    public void setPanel() {
+        for (Snake snake : snakes) {
             snake.setPanelToDrawOn(this);
         }
     }
+
 
 }

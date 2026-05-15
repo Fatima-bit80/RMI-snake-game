@@ -29,13 +29,17 @@ public class LobbyPanel extends JPanel implements GamePanel {
     private Map<Integer,JLabel> statuses;
     private Map<Integer,ImagePanel> images;
 
+    private ArrayList<String> messages;
+
 
     private JPanel playersContainer;
+    private JPanel chatContainer;
     private JTextArea chatArea;
     private JTextField messageField;
     private JPanel playersPanel;
     private JPanel chatPanel;
     private JScrollPane playersScroll;
+    private JScrollPane chatScroll;
 
     private final JPanel topPanel;
     private final JPanel centerPanel;
@@ -47,11 +51,12 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
 
 
-    public LobbyPanel(ISnakeServer server, int id,Map<Integer,Snake> snakes) throws RemoteException {
+    public LobbyPanel(ISnakeServer server, int id,Map<Integer,Snake> snakes,ArrayList<String> messages) throws RemoteException {
 
         this.server=server;
         this.id = id;
         this.snakes=snakes;
+        this.messages=messages;
 
         statuses = new HashMap<>();
         images= new HashMap<>();
@@ -144,17 +149,35 @@ displayMessage("yay");
 
 
         // CHAT AREA
-        chatArea = new JTextArea();
-        chatArea.setEditable(false);
-        chatArea.setLineWrap(true);
-        chatArea.setWrapStyleWord(true);
-        chatArea.setBackground(DARKER_GREEN_COLOR);
-        chatArea.setForeground(LIGHT_GREEN_COLOR);
-        chatArea.setFont(FontLoader.loadPixelFont(12f));
-        chatArea.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JScrollPane chatScroll = new JScrollPane(chatArea);
-        chatScroll.setBorder(null);
+        chatContainer = new JPanel();
+        chatContainer.setLayout(new BoxLayout(playersContainer, BoxLayout.Y_AXIS));
+        chatContainer.setBackground(DARKER_GREEN_COLOR);
+        chatContainer.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
+
+
+        chatScroll = new JScrollPane(chatContainer);
+        initializeScrollPane(chatScroll);
+
+        playersPanel.add(playersScroll, BorderLayout.CENTER);
+
+        if(messages!=null){
+            for(String message:messages){
+                displayMessage(message);
+            }
+        }
+//        chatArea = new JTextArea();
+//        chatArea.setEditable(false);
+//        chatArea.setLineWrap(true);
+//        chatArea.setWrapStyleWord(true);
+//        chatArea.setBackground(DARKER_GREEN_COLOR);
+//        chatArea.setForeground(LIGHT_GREEN_COLOR);
+//        chatArea.setFont(FontLoader.loadPixelFont(12f));
+//        chatArea.setBorder(new EmptyBorder(10, 10, 10, 10));
+//
+//
+//        JScrollPane chatScroll = new JScrollPane(chatArea);
+//        chatScroll.setBorder(null);
 
 
         // INPUT AREA
@@ -227,7 +250,7 @@ displayMessage("yay");
 
 
         playersScroll = new JScrollPane(playersContainer);
-        initializeScrollPane();
+        initializeScrollPane(playersScroll);
 
         playersPanel.add(playersScroll, BorderLayout.CENTER);
 
@@ -239,21 +262,21 @@ displayMessage("yay");
 
     }
 
-    private void initializeScrollPane() {
-        playersScroll.setBorder(null);
-        playersScroll.getViewport().setBorder(null);
-        playersScroll.setBackground(DARKER_GREEN_COLOR);
-        playersScroll.getVerticalScrollBar().setUnitIncrement(14);
-        playersScroll.setBorder(null);
-        playersScroll.getViewport().setBackground(LIGHT_GREEN_COLOR);
-        playersScroll.setBorder(
+    private void initializeScrollPane(JScrollPane scrollPane) {
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBorder(null);
+        scrollPane.setBackground(DARKER_GREEN_COLOR);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(14);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(LIGHT_GREEN_COLOR);
+        scrollPane.setBorder(
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         );
-        playersScroll.getViewport().setScrollMode(JViewport.BLIT_SCROLL_MODE);
-        playersScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.getViewport().setScrollMode(JViewport.BLIT_SCROLL_MODE);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
 
-        playersScroll.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
+        scrollPane.getVerticalScrollBar().setUI(new BasicScrollBarUI() {
 
             @Override
             protected void configureScrollBarColors() {
@@ -381,8 +404,6 @@ displayMessage("yay");
         button.setForeground(Color.WHITE);
         button.setBackground(color);
 
-        button.setFont(new Font("Arial", Font.BOLD, 15));
-
         button.setPreferredSize(new Dimension(170, 45));
 
         button.setBorder(BorderFactory.createEmptyBorder());
@@ -413,10 +434,47 @@ displayMessage("yay");
 
         int playerId =Integer.parseInt(parts[0]);
 
-        int playerNumber = snakes.get(id).getPlayerNumber();
+        String playerName =parts[1];
+
+        String msg = "";
+        for(int i=2;i<parts.length;i++) {
+            msg += parts[i];
+        }
+
+        int playerNumber = snakes.get(playerId).getPlayerNumber();
 
      String colorHex = ColorCode.fromCode(playerNumber).getColorHex();
      Color color = ColorCode.getColor(colorHex);
+
+
+
+        JPanel messagePanel = new JPanel(new BorderLayout());
+        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 70));
+        messagePanel.setBackground(DARK_GREEN_COLOR);
+        messagePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        JLabel name = new JLabel(playerName+":");
+        name.setForeground(color);
+        name.setBackground(DARKER_GREEN_COLOR);
+        name.setFont(FontLoader.loadPixelFont(10f));
+
+
+
+        JLabel messageLabel = new JLabel(msg);
+        messageLabel.setForeground(LIGHT_GREEN_COLOR);
+        messageLabel.setFont(FontLoader.loadPixelFont(10f));
+
+        messagePanel.add(name, BorderLayout.WEST);
+        messagePanel.add(messageLabel, BorderLayout.EAST);
+
+
+
+        chatContainer.add(messagePanel);
+        chatContainer.add(Box.createVerticalStrut(10));
+
+
+        revalidate();
+        repaint();
 
 
 
@@ -465,7 +523,7 @@ displayMessage("yay");
 
 
             try {
-                frame.setContentPane(new LobbyPanel(null, -1,null));
+                frame.setContentPane(new LobbyPanel(null, -1,null,null));
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
             }
