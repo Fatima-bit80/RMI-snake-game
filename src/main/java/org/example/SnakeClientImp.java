@@ -42,7 +42,7 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     static {
         try {
             INSTANCE = new SnakeClientImp();
-            mainFrame = new MainFrame(INSTANCE);
+            mainFrame = new MainFrame(INSTANCE,server,-1);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -72,6 +72,8 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
     @Override
     public void displayMessage(String message) throws RemoteException {
+        System.out.println(mainFrame.getCurrentPanel().getClass().getSimpleName());
+        mainFrame.getCurrentPanel().displayMessage(message);
         System.out.println(message);
     }
 
@@ -85,10 +87,12 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     }
 
     @Override
-    public void addToLobby(Map<Integer, Snake> players,ArrayList<Integer> ids) throws RemoteException {
+    public void addToLobby(Map<Integer, Snake> players,ArrayList<Integer> ids) throws RemoteException, InterruptedException {
 
         if(state ==0){
+            System.out.println("from start to lobby");
             state=2;
+            Thread.sleep(2000);
             mainFrame.showPage(LobbyPanel.class.getSimpleName());
             updateLobby(players,ids);
         }
@@ -110,13 +114,6 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
     }
 
-    @Override
-    public void changeLabelText(String tetx) throws RemoteException {
-
-        if (state == 0) {
-            //startPagePanel.getMessageArea().setText(tetx);
-        }
-    }
 
     @Override
     public void updateWaitingList(Map<Integer, Snake> snakes, ArrayList<Integer> integers) throws RemoteException {
@@ -148,6 +145,8 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
             }
 
+            mainFrame.setId(id);
+
 
             heartbeatScheduler.scheduleAtFixedRate(() -> {
                 try {
@@ -159,7 +158,7 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
             throw new RuntimeException(e);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
-        } catch (RemoteException e) {
+        } catch (RemoteException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
@@ -172,6 +171,8 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
             try {
                 server.disconnect(id);
             } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }

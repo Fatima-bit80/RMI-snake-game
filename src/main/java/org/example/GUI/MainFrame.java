@@ -3,6 +3,7 @@ package org.example.GUI;
 import org.example.GUI.lobby.LobbyPanel;
 import org.example.GUI.start.StartPagePanel;
 import org.example.GUI.waiitng.WaitingPanel;
+import org.example.ISnakeServer;
 import org.example.SnakeClientImp;
 import org.example.Statics.Images;
 import org.example.GUI.game.MainGamePanel;
@@ -11,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.rmi.RemoteException;
 import java.util.HashMap;
 
 public class MainFrame extends JFrame {
@@ -29,18 +31,24 @@ public class MainFrame extends JFrame {
     private final WaitingPanel waitingPanel;
     private final SnakeClientImp clientImp;
 
+    private int id=-1;
 
+    public void setId(int id) {
+        this.id = id;
+        lobbyPanel.setId(id);
+        mainGamePanel.setId(id);
+    }
 
-    public MainFrame(SnakeClientImp clientImp){
+    public MainFrame(SnakeClientImp clientImp, ISnakeServer server, int id) throws RemoteException {
         this.clientImp = clientImp;
 
         cardLayout = new CardLayout();
         container = new JPanel(cardLayout);
 
         //panels
-        mainGamePanel = new MainGamePanel(clientImp);
+        mainGamePanel = new MainGamePanel(clientImp,-1);
         startPagePanel = new StartPagePanel(clientImp);
-        lobbyPanel = new LobbyPanel();
+        lobbyPanel = new LobbyPanel(server,-1,null);
         waitingPanel = new WaitingPanel();
 
         pageTitle = new HashMap<>();
@@ -106,6 +114,7 @@ public class MainFrame extends JFrame {
         }
             cardLayout.show(container, pageName);
 
+
         Dimension size = currentComponent.getPreferredSize();
 
         container.setPreferredSize(size);
@@ -115,6 +124,8 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
 
         currentComponent.requestFocusInWindow();
+
+        System.out.println(currentComponent.getClass().getSimpleName());
 
     }
 
@@ -137,12 +148,12 @@ public class MainFrame extends JFrame {
     }
 
 
-    public JPanel getCurrentPanel() {
+    public GamePanel getCurrentPanel() {
 
         for (Component comp : container.getComponents()) {
 
             if (comp.isVisible()) {
-                return (JPanel) comp;
+                return (GamePanel) comp;
             }
         }
 
@@ -150,8 +161,8 @@ public class MainFrame extends JFrame {
     }
 
 
-    public static void main(String[] args) {
-        MainFrame main = new MainFrame(SnakeClientImp.getInstance());
+    public static void main(String[] args) throws RemoteException {
+        MainFrame main = new MainFrame(SnakeClientImp.getInstance(),null,-1);
         try {
             Thread.sleep(3000);
             main.showPage(MainGamePanel.class.getSimpleName());

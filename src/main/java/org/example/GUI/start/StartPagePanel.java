@@ -40,7 +40,7 @@ public class StartPagePanel extends JPanel implements GamePanel {
         titleImage = Images.snakesGame.getScaledInstance(425,53,Image.SCALE_SMOOTH);
 
         client = snakeClient;
-        setPreferredSize(new Dimension(TOTAL_WIDTH/3+100, GAME_HEIGHT*3/4+50));
+        setPreferredSize(new Dimension(START_PAGE_WIDTH,START_PAGE_HEIGHT));
 
         setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 

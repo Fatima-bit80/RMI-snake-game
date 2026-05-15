@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.Enums.ColorCode;
 import org.example.Statics.Coordinate;
 
 import java.rmi.RemoteException;
@@ -45,20 +46,20 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     }//initial positions of snakes
 
     private int nbPlayers = 0;
+
+
     //players in the lobby or in game
-    private final Map<Integer, ISnakeClient> players = new HashMap();
+    private final Map<Integer, ISnakeClient> players = new HashMap();//int is id
 
     //players unable to enter
-    private final Map<Integer, ISnakeClient> waitingList = new HashMap();
+    private final Map<Integer, ISnakeClient> waitingList = new HashMap();//int is id
 
+    private final Map<Integer, Snake> snakes = new HashMap();//int is id
 
-    private final Map<Integer, Snake> snakes = new HashMap();
-
+    private final ArrayList<String> lobbyMessages = new ArrayList<>();
 
     //to see what players are ready
-    private final Map<Integer, Boolean> gameStarted = new HashMap();
-
-    //private Map<Integer,List<Integer>> initialPositions = new HashMap();
+    private final Map<Integer, Boolean> gameStarted = new HashMap();//int is id
 
 
     protected SnakeServerImp() throws RemoteException {
@@ -66,16 +67,15 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
 
     @Override
-    public synchronized int connect(ISnakeClient client, String name) throws RemoteException {
+    public synchronized int connect(ISnakeClient client, String name) throws RemoteException, InterruptedException {
 
         System.out.println(availableColors);
         int playerNumber = -1;
-        //todo save
+        //todo save to file
 
 
         id++;
         Snake s = createSnake(id, name, playerNumber, START);
-        snakes.put(id, s);
 
         if (nbPlayers <= 5) {
             addToLobby(client, s);
@@ -95,7 +95,7 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
 
         System.out.println("a player with id "+snakeId+" to connect but the lobby is full transforming to waiting list");
-        client.changeLabelText(message);
+        client.displayMessage(message);
         client.addToWaitingList();
         client.updateWaitingList(snakes,new ArrayList<>(waitingList.keySet()));
         sendMessage("snake with id "+ snakeId+"was added to the waiting list",WAITING);
@@ -104,16 +104,17 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
     private Snake createSnake(int id, String name, int playerNumber, int state) {
 
-        Snake s = new Snake(playerNumber, null, 2, id, name, state);
+        Snake s = new Snake(playerNumber, null, 2, id, name, state,false);
 
         if (playerNumber != -1)
             s.setCoordinates(initialPositions.get(playerNumber));
 
+        snakes.put(id, s);
         return s;
     }
 
     @Override
-    public synchronized void disconnect(int id) throws RemoteException {
+    public synchronized void disconnect(int id) throws RemoteException, InterruptedException {
 
         //todo if heart beat not sent -> disconnect
        Snake s = snakes.get(id);
@@ -162,7 +163,6 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
             String message = "you are now playing " + "your id is " + id + "  snake : " + ss;
 
             client.displayMessage(message);
-            client.changeLabelText(message);
             gameStarted.put(id, false);
             client.addToLobby(snakes,new ArrayList<>(players.keySet()));
 
@@ -178,9 +178,63 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
     }
 
-    @Override
-    public void heartbeat(int id) throws RemoteException {
 
+
+
+
+
+    //lobby
+    @Override
+    public void displayLobbyChat(int id, String message) throws RemoteException {
+
+        lobbyMessages.add(snakes.get(id).getName()+": "+message);
+        for(ISnakeClient snakeClient : players.values()){
+            snakeClient.displayMessage(message);
+        }
+    }
+
+    public synchronized void addToLobby(ISnakeClient client, Snake s) throws RemoteException, InterruptedException {
+        int snakeId=s.getId();
+
+        int playerNumber = availableColors.get(0);
+        availableColors.remove((Object) playerNumber);
+
+        s.setPlayerNumber(playerNumber);
+        s.setCoordinates(initialPositions.get(playerNumber));
+
+        nbPlayers++;
+
+        String message = "connected successfully " + "your id is " + snakeId+" you color is "+ ColorCode.fromCode(playerNumber).name();
+        System.out.println("player with id " + snakeId + " connected successfully");
+        client.displayMessage(message+"the one you want");
+
+        gameStarted.put(snakeId, false);
+
+        players.put(snakeId, client);
+        s.setState(LOBBY);
+
+        client.addToLobby(snakes,new ArrayList<>(players.keySet()));
+
+        notifyAllPlayersInLobby(s);
+
+
+
+
+    }
+
+    public void notifyAllPlayersInLobby(Snake s) {
+        for (int i : players.keySet()) {
+            ISnakeClient c = players.get(i);
+            try {
+                c.updateLobby(snakes, new ArrayList<>(players.keySet()));
+                String message = "SERVER: "+s.getName()+" joined the lobby...";
+                lobbyMessages.add(message);
+                c.displayMessage(message);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
+
+        }
     }
 
     @Override
@@ -213,48 +267,14 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
 
 
-    public synchronized void addToLobby(ISnakeClient client, Snake s) throws RemoteException {
-        int snakeId=s.getId();
-        int playerNumber = availableColors.get(0);
-        availableColors.remove((Object) playerNumber);
-        s.setPlayerNumber(playerNumber);
-        s.setCoordinates(initialPositions.get(playerNumber));
-
-        nbPlayers++;
-
-        String message = "connected successfully " + "your id is " + snakeId;
-        System.out.println("player with id " + snakeId + " connected successfully");
-        client.displayMessage(message);
-        client.displayMessage(s.toString());
-        client.changeLabelText(message);
-
-        gameStarted.put(snakeId, false);
-
-        players.put(snakeId, client);
-        s.setState(LOBBY);
-
-        client.addToLobby(snakes,new ArrayList<>(players.keySet()));
-        //todo change panel to view lobby panel
 
 
-        notifyAllPlayersInLobby();
-        sendMessage("player with id "+snakeId+"was added to the lobby",LOBBY);
+
+
+    @Override
+    public void heartbeat(int id) throws RemoteException {
 
     }
-
-    public void notifyAllPlayersInLobby() {
-        for (int i : players.keySet()) {
-            ISnakeClient c = players.get(i);
-            try {
-                c.updateLobby(snakes, new ArrayList<>(players.keySet()));
-                c.displayMessage("the players ids: " + players.keySet());
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-
-        }
-    }
-
     public void notifyAllPlayersInWaitingList() {
         for (int i : waitingList.keySet()) {
             ISnakeClient c = waitingList.get(i);
@@ -283,6 +303,9 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
 
     }
+
+
+
 
 
     public static void main(String[] args) {

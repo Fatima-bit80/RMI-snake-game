@@ -20,6 +20,12 @@ public class Config {
     public static final int LEADERBOARD_HEIGHT = GAME_HEIGHT;
     public static final int MESSAGE_HEIGHT = TOTAL_HEIGHT-GAME_HEIGHT;
     public static final int TILE_SIZE = 40;
+    public static final int START_PAGE_WIDTH = TOTAL_WIDTH/3+100;
+    public static final int START_PAGE_HEIGHT =  GAME_HEIGHT*3/4+50;
+
+    public static final int LOBBY_WIDTH = TOTAL_WIDTH/2;
+    public static final int LOBBY_HEIGHT = GAME_HEIGHT;
+
 
     public static final int TEXT_OFFSET = TILE_SIZE/3;
     public static final int ROWS = GAME_HEIGHT/TILE_SIZE;
@@ -57,6 +63,32 @@ public class Config {
             Integer.parseInt(darkGreenHex.substring(3, 5), 16),
             Integer.parseInt(darkGreenHex.substring(5, 7), 16),
             Integer.parseInt(darkGreenHex.substring(7, 9), 16)
+    );
+
+    public static final String darkerGreenHex ="#192B0CFF";
+    public static final Color DARKER_GREEN_COLOR = new Color(
+            Integer.parseInt(darkerGreenHex.substring(1, 3), 16),
+            Integer.parseInt(darkerGreenHex.substring(3, 5), 16),
+            Integer.parseInt(darkerGreenHex.substring(5, 7), 16),
+            Integer.parseInt(darkerGreenHex.substring(7, 9), 16)
+    );
+
+    public static final String readyGreenHex = "#429701FF";
+    public static final Color READY_GREEN_HEX = new Color(
+            Integer.parseInt(readyGreenHex.substring(1, 3), 16),
+            Integer.parseInt(readyGreenHex.substring(3, 5), 16),
+            Integer.parseInt(readyGreenHex.substring(5, 7), 16),
+            Integer.parseInt(readyGreenHex.substring(7, 9), 16)
+    );
+
+
+
+    public static final String notReadyOrangeHex = "#FB6107FF";
+    public static final Color NOT_READY_ORANGE_HEX = new Color(
+            Integer.parseInt(notReadyOrangeHex.substring(1, 3), 16),
+            Integer.parseInt(notReadyOrangeHex.substring(3, 5), 16),
+            Integer.parseInt(notReadyOrangeHex.substring(5, 7), 16),
+            Integer.parseInt(notReadyOrangeHex.substring(7, 9), 16)
     );
 
    public static final Font pixelFont = FontLoader.loadPixelFont(16f);

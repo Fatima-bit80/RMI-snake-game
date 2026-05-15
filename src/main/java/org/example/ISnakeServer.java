@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 public interface ISnakeServer extends Remote {
 
-    public int connect(ISnakeClient client,String name) throws RemoteException;
+    public int connect(ISnakeClient client,String name) throws RemoteException, InterruptedException;
     //returns id
     //if there are 6 or more players -> client is put in the watchlist
     //else the player enter the lobby
@@ -14,11 +14,12 @@ public interface ISnakeServer extends Remote {
     //i am already in the lobby and i want to start the game
     //game only starts when all players are ready
 
-    public void disconnect(int id) throws RemoteException;
+    public void disconnect(int id) throws RemoteException, InterruptedException;
     //if in lobby i leave
     //if in waitinf list i am removed
 
     public void setDirection(int id, int direction) throws RemoteException;
 
    public void heartbeat(int id) throws  RemoteException;
+   public void displayLobbyChat(int id, String text) throws RemoteException;
 }

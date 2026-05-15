@@ -23,8 +23,13 @@ public class MainGamePanel extends JPanel implements GamePanel {
     private final LeaderBoardPanel leaderBoardPanel;
     private final MessagePanel messagePanel;
 
+    private int id;
 
-    public MainGamePanel(SnakeClientImp  snakeClient) {
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public MainGamePanel(SnakeClientImp  snakeClient, int id) {
         snakeClientImp = snakeClient;
 
         setPreferredSize(new Dimension(TOTAL_WIDTH,GAME_HEIGHT));
@@ -102,7 +107,7 @@ public class MainGamePanel extends JPanel implements GamePanel {
 
         JFrame frame = new JFrame();
 
-        MainGamePanel game =  new MainGamePanel(SnakeClientImp.getInstance());
+        MainGamePanel game =  new MainGamePanel(SnakeClientImp.getInstance(),-1);
 
         frame.add(game);
 
@@ -130,7 +135,7 @@ public class MainGamePanel extends JPanel implements GamePanel {
         coordinateList.add(x3);
         coordinateList.add(x4);
 
-        snakes.add(new Snake(1,coordinateList,0,7,"fatima", GAME));
+        snakes.add(new Snake(1,coordinateList,0,7,"fatima", GAME,false));
 
 
         Coordinate y1 = new Coordinate(10,8);
@@ -154,7 +159,7 @@ public class MainGamePanel extends JPanel implements GamePanel {
         cy.add(y7);
         cy.add(y8);
 
-        snakes.add(new Snake(0,cy,2,8,"fffffATIMA NADDAHHHH",GAME));
+        snakes.add(new Snake(0,cy,2,8,"fffffATIMA NADDAHHHH",GAME,false));
 
 
         System.out.println(snakes.getLast().coordinates);

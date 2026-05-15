@@ -1,4 +1,7 @@
 package org.example.Enums;
+
+import java.awt.*;
+
 public enum ColorCode {
 
     ROSE(0, "rose", "#E47A9CFF"),
@@ -35,6 +38,14 @@ public enum ColorCode {
             if (c.code == code) return c;
         }
         throw new IllegalArgumentException("Invalid code");
+    }
+
+    public static Color getColor(String colorHex) {
+        return new Color(
+                Integer.parseInt(colorHex.substring(1, 3), 16),
+                Integer.parseInt(colorHex.substring(3, 5), 16),
+                Integer.parseInt(colorHex.substring(5, 7), 16),
+                Integer.parseInt(colorHex.substring(7, 9), 16));
     }
 
 }
