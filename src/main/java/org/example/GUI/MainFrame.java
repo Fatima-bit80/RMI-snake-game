@@ -2,7 +2,6 @@ package org.example.GUI;
 
 import org.example.GUI.lobby.LobbyPanel;
 import org.example.GUI.start.StartPagePanel;
-import org.example.GUI.waiitng.WaitingPanel;
 import org.example.ISnakeServer;
 import org.example.SnakeClientImp;
 import org.example.Statics.Images;
@@ -28,7 +27,6 @@ public class MainFrame extends JFrame {
     private final MainGamePanel mainGamePanel;
     private final StartPagePanel startPagePanel;
     private final LobbyPanel lobbyPanel;
-    private final WaitingPanel waitingPanel;
     private final SnakeClientImp clientImp;
 
     private ISnakeServer snakeServer;
@@ -52,7 +50,6 @@ public class MainFrame extends JFrame {
         mainGamePanel = new MainGamePanel(server,clientImp,-1);
         startPagePanel = new StartPagePanel(clientImp);
         lobbyPanel = new LobbyPanel(server,-1);
-        waitingPanel = new WaitingPanel();
 
         pageTitle = new HashMap<>();
         initializeMap();
@@ -64,7 +61,6 @@ public class MainFrame extends JFrame {
         container.add(mainGamePanel, mainGamePanel.getClass().getSimpleName());
         container.add(startPagePanel,startPagePanel.getClass().getSimpleName());
         container.add(lobbyPanel,lobbyPanel.getClass().getSimpleName());
-        container.add(waitingPanel,waitingPanel.getClass().getSimpleName());
 
 
         add(container);
@@ -94,7 +90,6 @@ public class MainFrame extends JFrame {
         pageTitle.put(mainGamePanel.getClass().getSimpleName(), "Snake Game");
         pageTitle.put(startPagePanel.getClass().getSimpleName(), "Start Page");
         pageTitle.put(lobbyPanel.getClass().getSimpleName(), "Lobby");
-        pageTitle.put(waitingPanel.getClass().getSimpleName(), "Waiting Page");
 
     }
 
@@ -151,9 +146,6 @@ public class MainFrame extends JFrame {
         return startPagePanel;
     }
 
-    public WaitingPanel getWaitingPanel() {
-        return waitingPanel;
-    }
 
 
     public GamePanel getCurrentPanel() {

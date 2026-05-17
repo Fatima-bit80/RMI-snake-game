@@ -42,8 +42,7 @@ public class Config {
 
     public static final int START = 0;
     public static final int LOBBY = 1;
-    public static final int WAITING = 2;
-    public static final int GAME = 3;
+    public static final int GAME = 2;
 
     public static final int MAX_NB_PLAYERS =4;
 

@@ -2,7 +2,6 @@ package org.example;
 
 import org.example.GUI.MainFrame;
 import org.example.GUI.lobby.LobbyPanel;
-import org.example.GUI.waiitng.WaitingPanel;
 import org.example.Statics.Config;
 
 import javax.swing.*;
@@ -41,12 +40,18 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
     int id = -1;//initially no id
 
-    private static final MainFrame mainFrame;
+    private static MainFrame mainFrame;
 
     static {
         try {
             INSTANCE = new SnakeClientImp();
-            mainFrame = new MainFrame(INSTANCE, server, -1);
+            SwingUtilities.invokeLater(() -> {
+                try {
+                    mainFrame = new MainFrame(INSTANCE, server, -1);
+                } catch (RemoteException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -78,13 +83,13 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     public void displayMessage(String message) throws RemoteException {
 
 
-        System.out.println(mainFrame.getCurrentPanel().getClass().getSimpleName());
-        System.out.println(message);
+
         // mainFrame.getCurrentPanel().displayMessage(message);
 
         SwingUtilities.invokeLater(() -> {
-            System.out.println(message);
 
+            System.out.println(mainFrame.getCurrentPanel().getClass().getSimpleName());
+            System.out.println(message);
 
         switch (state) {
             case START:
@@ -92,9 +97,6 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
                 break;
             case LOBBY:
                 mainFrame.getLobbyPanel().displayMessage(message);
-                break;
-            case WAITING:
-                mainFrame.getWaitingPanel().displayMessage(message);
                 break;
             case GAME:
                 mainFrame.getMainGamePanel().displayMessage(message);
@@ -105,14 +107,7 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
         });
     }
 
-    @Override
-    public void addToWaitingList() throws RemoteException {
 
-        if (state == 0) {
-            state = 1;
-            mainFrame.showPage(WaitingPanel.class.getSimpleName());
-        }
-    }
 
     @Override
     public void addToLobby(Map<Integer, Snake> players, ArrayList<Integer> ids, ArrayList<String> lobbyMessages) throws RemoteException, InterruptedException {
@@ -143,20 +138,30 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
     }
 
     @Override
-    public void notifyChange(ArrayList<Snake> snakes) throws RemoteException {
-        if (gameStarted && state == 3) {
-            mainFrame.getMainGamePanel().redrawSnakes(snakes);
-        } else {//still in the lobby
-
-        }
-
+    public void playerDisconnected(Snake s) throws RemoteException {
+        SwingUtilities.invokeLater(()->{
+         //   if(state==LOBBY){
+                mainFrame.getLobbyPanel().removePlayer(s);
+           // }
+        });
     }
-
 
     @Override
-    public void updateWaitingList(Map<Integer, Snake> snakes, ArrayList<Integer> integers) throws RemoteException {
+    public void notifyChange(ArrayList<Snake> snakes) throws RemoteException {
+
+        SwingUtilities.invokeLater(()->{
+            if (gameStarted && state == 3) {
+                mainFrame.getMainGamePanel().redrawSnakes(snakes);
+            } else {//still in the lobby
+
+            }
+        });
+
 
     }
+
+
+
 
     @Override
     public void enableStartButton() throws RemoteException {
@@ -186,9 +191,12 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
             }
 
-            mainFrame.setId(id);
-            mainFrame.setSnakeServer(server);
-            System.out.println(mainFrame);
+            SwingUtilities.invokeLater(()->{
+                mainFrame.setId(id);
+                mainFrame.setSnakeServer(server);
+                System.out.println(mainFrame);
+            });
+
 
 
 //            heartbeatScheduler.scheduleAtFixedRate(() -> {
@@ -240,7 +248,9 @@ public class SnakeClientImp extends UnicastRemoteObject implements ISnakeClient 
 
     public static void main(String[] args) {
 
-        mainFrame.setVisible(true);
+        SwingUtilities.invokeLater(()->{
+                mainFrame.setVisible(true);
+        });
     }
 
     public void setId(int id) {

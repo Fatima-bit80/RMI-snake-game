@@ -28,7 +28,10 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
     private Map<Integer,JLabel> statuses = new HashMap<>();
     private Map<Integer,ImagePanel> images = new HashMap<>();
+    private Map<Integer,JPanel> userPanels = new HashMap<>();
     private ArrayList<String> messages= new ArrayList<>();
+
+    private Map<Integer,ArrayList<JPanel>> messagesMap = new HashMap<>();
 
 
     private JPanel playersContainer;
@@ -106,7 +109,6 @@ public class LobbyPanel extends JPanel implements GamePanel {
     }
 
     public void setMessages(ArrayList<String> messages) {
-        this.messages = messages;
         for (String message : messages) {
             displayMessage(message);
         }
@@ -401,6 +403,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
         statuses.put(s.id,status);
         images.put(s.getId(),snakePreview);
 
+        userPanels.put(s.getId(),card);
 
         revalidate();
         repaint();
@@ -458,6 +461,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
     @Override
     public void displayMessage(String message) {
+        messages.add(message);
 
         String[] parts = message.split(":");
 
@@ -474,37 +478,63 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
         int playerNumber = -1;
 
-        if(playerId!=0)
-        playerNumber = snakes.get(playerId).getPlayerNumber();
+        //-1 server
+        //-2 offline player
+        //>=0 <=5 -> online player
 
+        if(playerId!=0){
+Snake s = snakes.get(playerId);
+        if(s==null){
+            playerNumber=-2;
+        }else{
+            playerNumber = snakes.get(playerId).getPlayerNumber();
 
-        Color color;
-        if(playerNumber!=-1) {
-            String colorHex = ColorCode.fromCode(playerNumber).getColorHex();
-            color = ColorCode.getColor(colorHex);
-        }else {
-            color = Color.BLACK;
         }
 
+        }else{
+            playerNumber=-1;
+        }
+
+        //todo if player left, displayMessageInGrey
+
+
+        Color color = Color.BLACK;
+        if(playerNumber>=0 && playerNumber<=5) {
+            String colorHex = ColorCode.fromCode(playerNumber).getColorHex();
+            color = ColorCode.getColor(colorHex);
+        }else if(playerNumber==-1){
+            color = Color.BLACK;
+        } else if (playerNumber == -2) {
+            color = Color.gray;
+        }
 
 
         JPanel messagePanel = new JPanel(new BorderLayout());
         messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
-        messagePanel.setBackground(DARK_GREEN_COLOR);
-        messagePanel.setBorder(new EmptyBorder(0, 5, 0, 5));
+        messagePanel.setBackground(LIGHT_GREEN_COLOR);
+        messagePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 
         JLabel name = new JLabel(playerName+":");
         name.setForeground(color);
-        name.setBackground(DARKER_GREEN_COLOR);
         name.setFont(FontLoader.loadPixelFont(10f));
+        name.setBorder(new  EmptyBorder(0, 5, 0, 5));
+
+        if(playerNumber!=-1 && playerNumber!=-2){
+            name.setOpaque(true);
+            name.setBackground(DARK_GREEN_COLOR);
+        }
 
 
 
         JLabel messageLabel = new JLabel(msg);
         messageLabel.setForeground(Color.black);
+        if(playerNumber==-2){
+            messageLabel.setForeground(Color.gray);
+        }
         messageLabel.setBackground(DARKER_GREEN_COLOR);
         messageLabel.setFont(FontLoader.loadPixelFont(10f));
+        messageLabel.setBorder(new  EmptyBorder(0, 5, 0, 5));
 
 
         messagePanel.add(name, BorderLayout.WEST);
@@ -516,6 +546,10 @@ public class LobbyPanel extends JPanel implements GamePanel {
         chatContainer.add(Box.createVerticalStrut(10));
 
 
+        if(!messagesMap.containsKey(playerId)){
+            messagesMap.put(playerId,new ArrayList<>());
+        }
+      messagesMap.get(playerId).add(messagePanel);
         revalidate();
         repaint();
 
@@ -606,5 +640,37 @@ public class LobbyPanel extends JPanel implements GamePanel {
         topPanel.add(left, BorderLayout.EAST);
 
 
+
+
+
+    }
+
+    public void removePlayer(Snake s) {
+        System.out.println("Trying to remove ID: " + s.getId());
+        System.out.println("Current keys: " + userPanels.keySet());
+
+        SwingUtilities.invokeLater(() -> {
+            snakes.remove(s.getId());
+
+            JPanel panel = userPanels.get(s.getId());
+            userPanels.remove(s.getId());
+            if (panel != null) {
+                System.out.println("removing the panel of the user");
+                playersContainer.remove(panel);
+                playersContainer.revalidate();
+                playersContainer.repaint();
+            }
+
+
+            ArrayList<JPanel> mes = messagesMap.get(s.getId());
+            if(mes!=null){
+                for (JPanel p : mes) {
+                    p.getComponent(0).setBackground(LIGHT_GREEN_COLOR);
+                    p.getComponent(0).setForeground(Color.GRAY);
+                    p.getComponent(1).setForeground(Color.GRAY);
+                }
+
+            }
+        });
     }
 }
