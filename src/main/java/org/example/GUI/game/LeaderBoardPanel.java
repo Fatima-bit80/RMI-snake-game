@@ -7,12 +7,16 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
+import static org.example.Statics.Config.*;
+
 public class LeaderBoardPanel extends JPanel {
 
     private JTable leaderboardTable;
     private DefaultTableModel tableModel;
 
     LeaderBoardPanel(ArrayList<String> scores) {
+
+        setPreferredSize(new Dimension(LEADERBOARD_WIDTH,LEADERBOARD_HEIGHT));
 
         setLayout(new BorderLayout());
         setBackground(new Color(30, 30, 30));

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.Statics;
 
 import java.awt.*;
 import java.io.InputStream;

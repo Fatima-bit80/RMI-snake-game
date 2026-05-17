@@ -1,12 +1,11 @@
 package org.example.GUI.lobby;
 
 import org.example.Enums.ColorCode;
-import org.example.FontLoader;
+import org.example.Statics.FontLoader;
 import org.example.GUI.GamePanel;
 import org.example.GUI.ImagePanel;
-import org.example.ISnakeServer;
-import org.example.Snake;
-import org.example.SnakeClientImp;
+import org.example.Model.Snake;
+import org.example.Client.SnakeClientImp;
 import org.example.Statics.Images;
 
 import javax.swing.*;
@@ -393,8 +392,16 @@ public class LobbyPanel extends JPanel implements GamePanel {
         left.add(nameLabel);
 
         JLabel status = new JLabel(s.isReady() ? "READY" : "WAITING");
-
         status.setForeground(s.isReady() ? READY_GREEN_HEX : NOT_READY_ORANGE_HEX);
+
+
+        if(s.state==GAME) {
+            status.setText("IN GAME");
+            status.setForeground(IN_GAME_BLUE);
+        }
+
+
+
 
         status.setFont(FontLoader.loadPixelFont(10f));
 
@@ -696,6 +703,8 @@ nameLabel.setText(name);
         try {
            clientImp.getServer().requestStartGame(clientImp.getId());
         } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

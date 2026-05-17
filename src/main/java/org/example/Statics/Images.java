@@ -66,5 +66,12 @@ public static final Image startBack = new ImageIcon("src/main/resources/titles/s
         }
     }
 
+    public static final Image[] fruits = new Image[3];
+    static {
+       fruits[0] = new ImageIcon("src/main/resources/food/apple.png").getImage();
+       fruits[1] = new ImageIcon("src/main/resources/food/grape.png").getImage();
+       fruits[2] = new ImageIcon("src/main/resources/food/orange.png").getImage();
+    }
+
 
 }

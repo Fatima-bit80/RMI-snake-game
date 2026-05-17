@@ -1,4 +1,4 @@
-package org.example;
+package org.example.Model;
 
 import org.example.Enums.ColorCode;
 import org.example.Statics.Coordinate;
@@ -45,6 +45,17 @@ public class Snake implements Serializable {
         this.name = name;
         this.state = state;
         this.ready = ready;
+    }
+
+    public Snake(Snake s,JPanel panel) {
+        playerNumber = s.getPlayerNumber();
+        coordinates = s.getCoordinates();
+        headDir = s.getHeadDir();
+        id = s.getId();
+        name = s.getName();
+        state = s.getState();
+        ready = s.isReady();
+        panelToDrawOn = panel;
     }
 
     public void setPanelToDrawOn(JPanel panelToDrawOn) {
@@ -110,8 +121,8 @@ public class Snake implements Serializable {
     public void drawSnake(Graphics2D g2d) {
         if (panelToDrawOn != null) {
 
-            Coordinate head = coordinates.getFirst();
-            Coordinate tail = coordinates.getLast();
+            Coordinate head = coordinates.get(0);
+            Coordinate tail = coordinates.get(coordinates.size()-1);
             Coordinate beforeLast = coordinates.get(coordinates.size() - 2);
 
             writeName(g2d);
@@ -131,7 +142,7 @@ public class Snake implements Serializable {
     public void writeName(Graphics2D g2d) {
         if (panelToDrawOn != null) {
 
-            Coordinate head = coordinates.getFirst();
+            Coordinate head = coordinates.get(0);
 
             int dy = TEXT_OFFSET + TILE_SIZE;
             if (headDir == 0) {
@@ -236,7 +247,7 @@ public class Snake implements Serializable {
 
     public void grow() {
 
-        Coordinate oldFirst = coordinates.getFirst();
+        Coordinate oldFirst = coordinates.get(0);
         Coordinate newFirst = new Coordinate(oldFirst.getX(), oldFirst.getY());
         if (headDir == 0) {
             newFirst.setY(oldFirst.getY() - 1);
@@ -249,7 +260,6 @@ public class Snake implements Serializable {
         }
         coordinates.addFirst(newFirst);
 
-        panelToDrawOn.repaint();
 
 
     }

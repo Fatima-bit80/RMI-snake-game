@@ -2,19 +2,21 @@ package org.example.GUI.start;
 
 import org.example.GUI.GamePanel;
 import org.example.GUI.MessagePanel;
-import org.example.SnakeClientImp;
+import org.example.Server.ISnakeServer;
+import org.example.Client.SnakeClientImp;
 import org.example.Statics.Images;
-
-import static org.example.Statics.Config.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+
+import static org.example.Statics.Config.*;
 
 public class StartPagePanel extends JPanel implements GamePanel {
-
 
 
     private final Image backgroundImage;
@@ -24,7 +26,7 @@ public class StartPagePanel extends JPanel implements GamePanel {
     private final JLabel titleLabel;
     private final JLabel ipAddressLabel;
     private final JLabel nameLabel;
-  //  private final JTextArea messageArea;
+    //  private final JTextArea messageArea;
 
     private final JTextField ipAddressField;
     private final JTextField snakeNameField;
@@ -38,16 +40,16 @@ public class StartPagePanel extends JPanel implements GamePanel {
     private int fieldWidth = 200;
 
     public StartPagePanel(SnakeClientImp snakeClient) {
-        backgroundImage= Images.startBack;
-        titleImage = Images.snakesGame.getScaledInstance(425,53,Image.SCALE_SMOOTH);
+        backgroundImage = Images.startBack;
+        titleImage = Images.snakesGame.getScaledInstance(425, 53, Image.SCALE_SMOOTH);
 
         client = snakeClient;
-        setPreferredSize(new Dimension(START_PAGE_WIDTH,START_PAGE_HEIGHT));
+        setPreferredSize(new Dimension(START_PAGE_WIDTH, START_PAGE_HEIGHT));
 
-        setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
 
-           setBorder(new EmptyBorder(70, 70, 70, 70));
+        setBorder(new EmptyBorder(70, 70, 70, 70));
 
         // Title
         titleLabel = new JLabel(new ImageIcon(titleImage));
@@ -129,7 +131,7 @@ public class StartPagePanel extends JPanel implements GamePanel {
         add(Box.createVerticalStrut(30));
 
         // Message Label
-        messagePanel = new MessagePanel(TOTAL_WIDTH/4,40,"Enter your name and the server's ip address to connect to the game");
+        messagePanel = new MessagePanel(TOTAL_WIDTH / 4, 40, "Enter your name and the server's ip address to connect to the game");
         JTextArea messageArea = messagePanel.getMessageArea();
         messageArea.setEditable(false);
         messageArea.setBackground(DARK_GREEN_COLOR);
@@ -145,15 +147,11 @@ public class StartPagePanel extends JPanel implements GamePanel {
         snakeNameField.addActionListener(e -> connect());
 
 
-
-
         setVisible(true);
 
 
-
-
-
     }
+
     @Override
     protected void paintComponent(Graphics g) {
 
@@ -183,16 +181,52 @@ public class StartPagePanel extends JPanel implements GamePanel {
     }
 
 
-
     @Override
     public void displayMessage(String message) {
         messagePanel.displayMessage(message);
     }
 
-    public void connect(){
-        client.connectToTheServer(ipAddressField.getText(),snakeNameField.getText());
-    }
+    public void connect() {
+        try {
+            String ip = ipAddressField.getText();
+            String name = snakeNameField.getText();
 
+            ISnakeServer server = null;
+            int id = client.getId();
+
+            server = (ISnakeServer) Naming.lookup("rmi://" + ip + ":" + PORT + "/snakeServer");
+
+
+            if (server == null) {
+                displayMessage("couldn't connect to server");
+            }else{
+                client.setServer(server);
+            }
+
+            if (id != -1) {//if user already logged in and trying to connect
+                server.disconnect(id);
+            }
+
+            id = server.connect(client, name);
+            client.setId(id);
+
+
+//            heartbeatScheduler.scheduleAtFixedRate(() -> {
+//                try {
+//                    server.heartbeat(id);
+//                } catch (Exception ignored) {
+//                }
+//            }, 1, 2, TimeUnit.SECONDS);
+
+        } catch (NotBoundException e) {
+            throw new RuntimeException(e);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (RemoteException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 
 }

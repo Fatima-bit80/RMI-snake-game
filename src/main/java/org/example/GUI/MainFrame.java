@@ -2,8 +2,7 @@ package org.example.GUI;
 
 import org.example.GUI.lobby.LobbyPanel;
 import org.example.GUI.start.StartPagePanel;
-import org.example.ISnakeServer;
-import org.example.SnakeClientImp;
+import org.example.Client.SnakeClientImp;
 import org.example.Statics.Images;
 import org.example.GUI.game.MainGamePanel;
 
@@ -28,6 +27,7 @@ public class MainFrame extends JFrame {
     private final StartPagePanel startPagePanel;
     private final LobbyPanel lobbyPanel;
     private final SnakeClientImp clientImp;
+
 
 
 

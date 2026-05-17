@@ -1,11 +1,13 @@
-package org.example;
+package org.example.Server;
+
+import org.example.Client.ISnakeClient;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface ISnakeServer extends Remote {
 
-    public int connect(ISnakeClient client,String name) throws RemoteException, InterruptedException;
+    public int connect(ISnakeClient client, String name) throws RemoteException, InterruptedException;
     //returns id
     //if there are 6 or more players -> client cant  join
     //else the player enter the lobby
@@ -15,7 +17,7 @@ public interface ISnakeServer extends Remote {
     public void displayLobbyChat(int id, String text) throws RemoteException;
 
 
-    public void requestStartGame(int id) throws RemoteException;
+    public void requestStartGame(int id) throws RemoteException, InterruptedException;
     //i am already in the lobby and i want to start the game
     //game only starts when all players are ready
 

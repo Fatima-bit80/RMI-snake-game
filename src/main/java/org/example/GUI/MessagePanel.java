@@ -1,6 +1,6 @@
 package org.example.GUI;
 
-import org.example.FontLoader;
+import org.example.Statics.FontLoader;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,7 +1,5 @@
 package org.example.Statics;
 
-import org.example.FontLoader;
-
 import java.awt.*;
 
 public class Config {
@@ -89,6 +87,13 @@ public class Config {
             Integer.parseInt(notReadyOrangeHex.substring(5, 7), 16),
             Integer.parseInt(notReadyOrangeHex.substring(7, 9), 16)
     );
+
+    public static final String inGameBlue = "#4DA6FFFF";
+    public static final Color IN_GAME_BLUE = new Color(
+            Integer.parseInt(inGameBlue.substring(1, 3), 16),
+            Integer.parseInt(inGameBlue.substring(3, 5), 16),
+            Integer.parseInt(inGameBlue.substring(5, 7), 16),
+            Integer.parseInt(inGameBlue.substring(7, 9), 16)    );
 
    public static final Font pixelFont = FontLoader.loadPixelFont(16f);
 
