@@ -147,17 +147,6 @@ public class MainFrame extends JFrame {
     }
 
 
-    public static void main(String[] args) throws RemoteException {
-        MainFrame main = new MainFrame(SnakeClientImp.getInstance());
-        try {
-            Thread.sleep(3000);
-            main.showPage(MainGamePanel.class.getSimpleName());
-            Thread.sleep(3000);
-            main.showPage(StartPagePanel.class.getSimpleName());
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void resetUI() throws RemoteException {
         currentComponent=startPagePanel;

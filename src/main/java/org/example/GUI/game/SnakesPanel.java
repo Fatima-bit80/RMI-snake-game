@@ -34,14 +34,17 @@ public class SnakesPanel extends JPanel implements Serializable {
 
         g2d.drawImage(backGroundImage, 0, 0, getWidth(), getHeight(), this);
 
-        for (Snake snake : snakes) {
-            snake.drawSnake(g2d);
-        }
 
         for(int fruitType:fruits.keySet()){
             Coordinate coordinate = fruits.get(fruitType);
             g2d.drawImage(Images.fruits[fruitType],coordinate.getPx(),coordinate.getPy(),TILE_SIZE,TILE_SIZE,this);
         }
+
+        for (Snake snake : snakes) {
+            snake.drawSnake(g2d);
+        }
+
+
 
     }
 
