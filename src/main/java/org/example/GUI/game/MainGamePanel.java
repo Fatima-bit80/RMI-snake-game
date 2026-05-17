@@ -27,6 +27,7 @@ public class MainGamePanel extends JPanel implements GamePanel {
 
 
     private int id;
+    //todo put id only in the clientImp and they all get it from there (single source) (they all only have the client imp)
 
     public void setId(int id) {
         this.id = id;
@@ -271,5 +272,9 @@ public class MainGamePanel extends JPanel implements GamePanel {
         messagePanel.displayMessage(message);
     }
 
+    public void reset(){
+        snakeServer=null;
+        setId(-1);
+    }
 
 }

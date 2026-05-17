@@ -49,7 +49,7 @@ public class MainFrame extends JFrame {
         //panels
         mainGamePanel = new MainGamePanel(server,clientImp,-1);
         startPagePanel = new StartPagePanel(clientImp);
-        lobbyPanel = new LobbyPanel(server,-1);
+        lobbyPanel = new LobbyPanel(server,-1,clientImp);
 
         pageTitle = new HashMap<>();
         initializeMap();
@@ -95,7 +95,6 @@ public class MainFrame extends JFrame {
 
     public void showPage(String pageName){
 
-        //todo change size of container according to panel inside it
 
         if(pageTitle.containsKey(pageName)){
              setTitle(pageTitle.get(pageName));
@@ -171,5 +170,14 @@ public class MainFrame extends JFrame {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void resetUI() throws RemoteException {
+        currentComponent=startPagePanel;
+        snakeServer=null;
+        setId(-1);
+        setSnakeServer(null);
+        lobbyPanel.reset();
+        mainGamePanel.reset();
     }
 }

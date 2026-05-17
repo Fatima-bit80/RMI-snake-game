@@ -6,6 +6,7 @@ import org.example.GUI.GamePanel;
 import org.example.GUI.ImagePanel;
 import org.example.ISnakeServer;
 import org.example.Snake;
+import org.example.SnakeClientImp;
 import org.example.Statics.Images;
 
 import javax.swing.*;
@@ -22,16 +23,22 @@ import static org.example.Statics.Config.*;
 public class LobbyPanel extends JPanel implements GamePanel {
 
 
-    private Map<Integer,Snake> snakes = new HashMap<>();
+    private Map<Integer, Snake> snakes = new HashMap<>();
     private int id;
     private ISnakeServer server;
+    private SnakeClientImp clientImp;
 
-    private Map<Integer,JLabel> statuses = new HashMap<>();
-    private Map<Integer,ImagePanel> images = new HashMap<>();
-    private Map<Integer,JPanel> userPanels = new HashMap<>();
-    private ArrayList<String> messages= new ArrayList<>();
 
-    private Map<Integer,ArrayList<JPanel>> messagesMap = new HashMap<>();
+    private Map<Integer, JLabel> statuses = new HashMap<>();
+    private Map<Integer, ImagePanel> images = new HashMap<>();
+
+
+    private ArrayList<String> messages = new ArrayList<>();
+    private Map<Integer, ArrayList<JPanel>> messagesMap = new HashMap<>();
+
+
+    private Map<Integer, JPanel> userPanels = new HashMap<>();
+    private Map<Integer, Component> spacers = new HashMap<>();
 
 
     private JPanel playersContainer;
@@ -42,25 +49,22 @@ public class LobbyPanel extends JPanel implements GamePanel {
     private JPanel chatPanel;
     private JScrollPane playersScroll;
     private JScrollPane chatScroll;
+    private JPanel userProfile;
 
     private final JPanel topPanel;
     private final JPanel centerPanel;
     private final JPanel bottomPanel;
 
 
+    public LobbyPanel(ISnakeServer server, int id, SnakeClientImp clientIMp) throws RemoteException {
 
-
-
-
-
-    public LobbyPanel(ISnakeServer server, int id) throws RemoteException {
-
-        this.server=server;
+        this.server = server;
         this.id = id;
+        this.clientImp = clientIMp;
 
 
         statuses = new HashMap<>();
-        images= new HashMap<>();
+        images = new HashMap<>();
 
         setPreferredSize(new Dimension(LOBBY_WIDTH, LOBBY_HEIGHT));
         setLayout(new BorderLayout());
@@ -104,18 +108,34 @@ public class LobbyPanel extends JPanel implements GamePanel {
     }
 
 
-    public ArrayList<String> getMessages() {
-        return messages;
-    }
-
+    //getters and setter
     public void setMessages(ArrayList<String> messages) {
         for (String message : messages) {
             displayMessage(message);
         }
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setSnakes(Map<Integer, Snake> snakes) {
+        this.snakes = snakes;
+        for (Snake s : snakes.values()) {
+            addPlayer(s);
+        }
+    }
+
+    public void setServer(ISnakeServer server) {
+        this.server = server;
+    }
 
 
+    //gui initialization
     private void initializeTopPanel() {
         topPanel.setBackground(DARK_GREEN_COLOR);
         topPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
@@ -125,12 +145,21 @@ public class LobbyPanel extends JPanel implements GamePanel {
         title.setFont(FontLoader.loadPixelFont(30f));
         title.setAlignmentX(CENTER_ALIGNMENT);
 
-        topPanel.add(title,BorderLayout.WEST);
+        userProfile = new JPanel(new BorderLayout());
+        JLabel userName = new JLabel("");
+        ImagePanel userImage = new ImagePanel(Images.snakeImage[0][0], 60, 60);
+        userProfile.add(userName,BorderLayout.WEST);
+        userProfile.add(userImage,BorderLayout.EAST);
+
+
+        topPanel.add(title, BorderLayout.WEST);
+        topPanel.add(userProfile, BorderLayout.EAST);
+
 
 
     }
 
-    private void initializeCenterPanel() throws RemoteException{
+    private void initializeCenterPanel() throws RemoteException {
         centerPanel.setBackground(DARKER_GREEN_COLOR);
         centerPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
 
@@ -148,7 +177,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
         centerPanel.add(chatPanel);
     }
 
-    private void initializeChatPanel() throws RemoteException{
+    private void initializeChatPanel() throws RemoteException {
         chatPanel = new JPanel(new BorderLayout(0, 15));
 
         chatPanel.setBackground(DARK_GREEN_COLOR);
@@ -176,8 +205,8 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
         playersPanel.add(playersScroll, BorderLayout.CENTER);
 
-        if(messages!=null){
-            for(String message:messages){
+        if (messages != null) {
+            for (String message : messages) {
                 displayMessage(message);
             }
         }
@@ -214,7 +243,6 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
         inputPanel.add(messageField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
-
 
 
         messageField.addActionListener(e -> {
@@ -257,7 +285,6 @@ public class LobbyPanel extends JPanel implements GamePanel {
         playersPanel.add(playersTitle, BorderLayout.NORTH);
 
 
-
         playersContainer = new JPanel();
         playersContainer.setLayout(new BoxLayout(playersContainer, BoxLayout.Y_AXIS));
         playersContainer.setBackground(DARKER_GREEN_COLOR);
@@ -270,9 +297,10 @@ public class LobbyPanel extends JPanel implements GamePanel {
         playersPanel.add(playersScroll, BorderLayout.CENTER);
 
 
-        if(snakes != null){
-            for(Snake s: snakes.values())
-                addPlayer(s);;
+        if (snakes != null) {
+            for (Snake s : snakes.values())
+                addPlayer(s);
+            ;
         }
 
     }
@@ -320,36 +348,25 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
     private void initializeBottomPanel() {
 
-        bottomPanel.setBackground(new Color(25, 25, 25));
+        bottomPanel.setBackground(DARK_GREEN_COLOR);
 
         JButton readyBtn = createButton("READY", new Color(0, 180, 0));
-        JButton colorBtn = createButton("CHANGE COLOR", new Color(180, 140, 0));
+        //    JButton colorBtn = createButton("CHANGE COLOR", new Color(180, 140, 0));
         JButton leaveBtn = createButton("LEAVE", new Color(180, 40, 40));
 
         bottomPanel.add(readyBtn);
-        bottomPanel.add(colorBtn);
+        //  bottomPanel.add(colorBtn);
         bottomPanel.add(leaveBtn);
+
+        readyBtn.addActionListener(e -> ready());
+        leaveBtn.addActionListener(e -> disconnect());
+
+        //todo change color of snake
+        // colorBtn.addActionListener(e->changeColor());
     }
 
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setSnakes(Map<Integer,Snake> snakes) {
-        System.out.println(snakes);
-        this.snakes = snakes;
-        for(Snake s: snakes.values()){
-            addPlayer(s);
-        }
-    }
-
-
-    public void setServer(ISnakeServer server) {
-        this.server = server;
-    }
-
-    // ADD PLAYER
+    //add player to lobby
     public void addPlayer(Snake s) {
         snakes.put(s.getId(), s);
 
@@ -366,7 +383,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
         left.setOpaque(false);
 
 
-        ImagePanel snakePreview = new ImagePanel(Images.snakeImage[s.getPlayerNumber()][0],40,40);
+        ImagePanel snakePreview = new ImagePanel(Images.snakeImage[s.getPlayerNumber()][0], 40, 40);
         JPanel imageWrapper = new JPanel(new GridBagLayout());
         imageWrapper.setOpaque(false);
 
@@ -397,33 +414,42 @@ public class LobbyPanel extends JPanel implements GamePanel {
         card.add(status, BorderLayout.EAST);
 
 
+        Component spacer = Box.createVerticalStrut(10);
+
         playersContainer.add(card);
-        playersContainer.add(Box.createVerticalStrut(10));
+        playersContainer.add(spacer);
 
-        statuses.put(s.id,status);
-        images.put(s.getId(),snakePreview);
+        spacers.put(s.getId(), spacer);
 
-        userPanels.put(s.getId(),card);
+        playersContainer.add(card);
+        playersContainer.add(spacer);
+
+        statuses.put(s.id, status);
+        images.put(s.getId(), snakePreview);
+
+        userPanels.put(s.getId(), card);
 
         revalidate();
         repaint();
+
+        scrollToBottom(playersScroll);
     }
 
-    public void updatePlayersPanel(Snake s) {
+    //change color or status of a player
+    public void updatePlayer(Snake s) {
         Snake old = snakes.get(s.getId());
 
-        if(old.getPlayerNumber() != s.getPlayerNumber()) {
-            updateImage(s.getId(),s.getPlayerNumber());
+        if (old.getPlayerNumber() != s.getPlayerNumber()) {
+            updateImage(s.getId(), s.getPlayerNumber());
         }
 
-        if(old.isReady()!=s.isReady()) {
-            updateStatus(s.getId(),s.isReady());
+        if (old.isReady() != s.isReady()) {
+            updateStatus(s.getId(), s.isReady());
         }
 
         snakes.put(s.getId(), s);
 
     }
-
 
 
     // BUTTON STYLE
@@ -435,6 +461,8 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
         button.setForeground(Color.WHITE);
         button.setBackground(color);
+
+        button.setFont(FontLoader.loadPixelFont(15f));
 
         button.setPreferredSize(new Dimension(170, 45));
 
@@ -465,15 +493,14 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
         String[] parts = message.split(":");
 
-        int playerId =Integer.parseInt(parts[0]);
+        int playerId = Integer.parseInt(parts[0]);
 
-        String playerName =parts[1];
+        String playerName = parts[1];
 
         String msg = "";
-        for(int i=2;i<parts.length;i++) {
+        for (int i = 2; i < parts.length; i++) {
             msg += parts[i];
         }
-        System.out.println(msg);
 
 
         int playerNumber = -1;
@@ -482,27 +509,25 @@ public class LobbyPanel extends JPanel implements GamePanel {
         //-2 offline player
         //>=0 <=5 -> online player
 
-        if(playerId!=0){
-Snake s = snakes.get(playerId);
-        if(s==null){
-            playerNumber=-2;
-        }else{
-            playerNumber = snakes.get(playerId).getPlayerNumber();
+        if (playerId != 0) {
+            Snake s = snakes.get(playerId);
+            if (s == null) {
+                playerNumber = -2;
+            } else {
+                playerNumber = snakes.get(playerId).getPlayerNumber();
 
+            }
+
+        } else {
+            playerNumber = -1;
         }
-
-        }else{
-            playerNumber=-1;
-        }
-
-        //todo if player left, displayMessageInGrey
 
 
         Color color = Color.BLACK;
-        if(playerNumber>=0 && playerNumber<=5) {
+        if (playerNumber >= 0 && playerNumber <= 5) {
             String colorHex = ColorCode.fromCode(playerNumber).getColorHex();
             color = ColorCode.getColor(colorHex);
-        }else if(playerNumber==-1){
+        } else if (playerNumber == -1) {
             color = Color.BLACK;
         } else if (playerNumber == -2) {
             color = Color.gray;
@@ -515,57 +540,53 @@ Snake s = snakes.get(playerId);
         messagePanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 
-        JLabel name = new JLabel(playerName+":");
+        JLabel name = new JLabel(playerName + ":");
         name.setForeground(color);
         name.setFont(FontLoader.loadPixelFont(10f));
-        name.setBorder(new  EmptyBorder(0, 5, 0, 5));
+        name.setBorder(new EmptyBorder(0, 5, 0, 5));
 
-        if(playerNumber!=-1 && playerNumber!=-2){
+        if (playerNumber != -1 && playerNumber != -2) {
             name.setOpaque(true);
             name.setBackground(DARK_GREEN_COLOR);
         }
 
 
-
         JLabel messageLabel = new JLabel(msg);
         messageLabel.setForeground(Color.black);
-        if(playerNumber==-2){
+        if (playerNumber == -2) {
             messageLabel.setForeground(Color.gray);
         }
         messageLabel.setBackground(DARKER_GREEN_COLOR);
         messageLabel.setFont(FontLoader.loadPixelFont(10f));
-        messageLabel.setBorder(new  EmptyBorder(0, 5, 0, 5));
+        messageLabel.setBorder(new EmptyBorder(0, 5, 0, 5));
 
 
         messagePanel.add(name, BorderLayout.WEST);
         messagePanel.add(messageLabel, BorderLayout.CENTER);
 
 
-
         chatContainer.add(messagePanel);
         chatContainer.add(Box.createVerticalStrut(10));
 
 
-        if(!messagesMap.containsKey(playerId)){
-            messagesMap.put(playerId,new ArrayList<>());
+        if (!messagesMap.containsKey(playerId)) {
+            messagesMap.put(playerId, new ArrayList<>());
         }
-      messagesMap.get(playerId).add(messagePanel);
+        messagesMap.get(playerId).add(messagePanel);
         revalidate();
         repaint();
 
-
-
-
+        scrollToBottom(chatScroll);
 
     }
 
-    public void updateStatus(int id,boolean status){
-      JLabel statusPanel =   statuses.get(id);
+    public void updateStatus(int id, boolean status) {
+        JLabel statusPanel = statuses.get(id);
         statusPanel.setText(status ? "READY" : "WAITING");
-        statusPanel.setForeground(status? READY_GREEN_HEX : NOT_READY_ORANGE_HEX);
+        statusPanel.setForeground(status ? READY_GREEN_HEX : NOT_READY_ORANGE_HEX);
     }
 
-    public void updateImage(int id,int playerNumber){
+    public void updateImage(int id, int playerNumber) {
         ImagePanel image = images.get(id);
         image.setImage(Images.snakeImage[playerNumber][0]);
     }
@@ -579,7 +600,7 @@ Snake s = snakes.get(playerId);
             return;
 
         try {
-            server.displayLobbyChat(id,msg);
+            server.displayLobbyChat(id, msg);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -590,32 +611,37 @@ Snake s = snakes.get(playerId);
 
 
     // TEST MAIN
-    public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(() -> {
-
-            JFrame frame = new JFrame("Snake Lobby");
-
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-
-            try {
-                frame.setContentPane(new LobbyPanel(null, -1));
-            } catch (RemoteException e) {
-                throw new RuntimeException(e);
-            }
-
-            frame.setVisible(true);
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-
-        });
-    }
+//    public static void main(String[] args) {
+//
+//        SwingUtilities.invokeLater(() -> {
+//
+//            JFrame frame = new JFrame("Snake Lobby");
+//
+//            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//
+//
+//            try {
+//                frame.setContentPane(new LobbyPanel(null, -1,null));
+//            } catch (RemoteException e) {
+//                throw new RuntimeException(e);
+//            }
+//
+//            frame.setVisible(true);
+//            frame.pack();
+//            frame.setLocationRelativeTo(null);
+//
+//        });
+//    }
 
     public void updateTopPanel() {
-        JPanel left = new JPanel(new BorderLayout());
-        System.out.println(id);
-        System.out.println(snakes);
+
+        BorderLayout layout = (BorderLayout) userProfile.getLayout();
+        JLabel nameLabel = (JLabel) layout.getLayoutComponent(BorderLayout.WEST);
+        ImagePanel imagePanel = (ImagePanel) layout.getLayoutComponent(BorderLayout.EAST);
+
+
+
+
 
         Snake s = snakes != null ? snakes.get(id) : null;
         if (s == null) return;
@@ -628,16 +654,16 @@ Snake s = snakes.get(playerId);
 
         String name = s.getName();
 
-        ImagePanel image = new ImagePanel(Images.snakeImage[s.getPlayerNumber()][0],60,60);
+        imagePanel.setImage(Images.snakeImage[playerNumber][0]);
 
-        JLabel nameLabel = new JLabel(name);
+
+
+
+nameLabel.setText(name);
         nameLabel.setForeground(c);
-        nameLabel.setFont(FontLoader.loadPixelFont(40f));
 
-        left.add(image, BorderLayout.EAST);
-        left.add(nameLabel, BorderLayout.WEST);
+        nameLabel.setFont(FontLoader.loadPixelFont(30f));
 
-        topPanel.add(left, BorderLayout.EAST);
 
 
 
@@ -646,8 +672,7 @@ Snake s = snakes.get(playerId);
     }
 
     public void removePlayer(Snake s) {
-        System.out.println("Trying to remove ID: " + s.getId());
-        System.out.println("Current keys: " + userPanels.keySet());
+
 
         SwingUtilities.invokeLater(() -> {
             snakes.remove(s.getId());
@@ -655,7 +680,6 @@ Snake s = snakes.get(playerId);
             JPanel panel = userPanels.get(s.getId());
             userPanels.remove(s.getId());
             if (panel != null) {
-                System.out.println("removing the panel of the user");
                 playersContainer.remove(panel);
                 playersContainer.revalidate();
                 playersContainer.repaint();
@@ -663,7 +687,7 @@ Snake s = snakes.get(playerId);
 
 
             ArrayList<JPanel> mes = messagesMap.get(s.getId());
-            if(mes!=null){
+            if (mes != null) {
                 for (JPanel p : mes) {
                     p.getComponent(0).setBackground(LIGHT_GREEN_COLOR);
                     p.getComponent(0).setForeground(Color.GRAY);
@@ -671,6 +695,75 @@ Snake s = snakes.get(playerId);
                 }
 
             }
+
+
+            Component spacer = spacers.get(s.getId());
+
+            if (spacer != null) {
+                playersContainer.remove(spacer);
+                spacers.remove(s.getId());
+            }
         });
     }
-}
+
+    public void ready() {
+        try {
+            server.requestStartGame(id);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void disconnect() {
+
+        clientImp.disconnect();
+
+    }
+
+    public void reset() throws RemoteException {
+
+resetData();
+        resetUI();
+
+
+    }
+
+    public void resetData(){
+        snakes = new HashMap<>();
+        setId(-1);
+        server = null;
+
+
+
+        statuses = new HashMap<>();
+        images = new HashMap<>();
+
+
+        messages = new ArrayList<>();
+        messagesMap = new HashMap<>();
+
+
+        userPanels = new HashMap<>();
+        spacers = new HashMap<>();
+    }
+
+    public void resetUI(){
+        SwingUtilities.invokeLater(() -> {
+            playersContainer.removeAll();
+            chatContainer.removeAll();
+
+            messageField.setText("");
+
+            revalidate();
+            repaint();
+
+        });
+    }
+
+
+    private void scrollToBottom(JScrollPane scrollPane) {
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar bar = scrollPane.getVerticalScrollBar();
+            bar.setValue(bar.getMaximum());
+        });
+    }}

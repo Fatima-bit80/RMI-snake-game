@@ -1,5 +1,7 @@
 package org.example.GUI;
 
+import org.example.FontLoader;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -11,7 +13,7 @@ public class MessagePanel extends JPanel {
 
         messageArea = new JTextArea(message);
         messageArea.setEditable(false);
-        messageArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        messageArea.setFont(FontLoader.loadPixelFont(10f));
         messageArea.setBackground(Color.WHITE);
         messageArea.setAlignmentX(Component.CENTER_ALIGNMENT);
 

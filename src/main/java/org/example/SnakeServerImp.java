@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.Enums.ColorCode;
 import org.example.Statics.Coordinate;
 
 import java.rmi.RemoteException;
@@ -184,12 +183,7 @@ String formattedMessage=id+":"+snakes.get(id).getName()+":"+message;
 
 
 
-
-
-
         gameStarted.put(snakeId, false);
-
-
 
 
         players.put(snakeId, client);
@@ -219,8 +213,7 @@ String formattedMessage=id+":"+snakes.get(id).getName()+":"+message;
             try {
 
                 if(s.getId()!=i)
-                c.updateLobby(s);
-
+                c.addASnake(s);
                 c.displayMessage(lobbyMessage);
             } catch (RemoteException e) {
                 throw new RuntimeException(e);
@@ -234,6 +227,14 @@ String formattedMessage=id+":"+snakes.get(id).getName()+":"+message;
 
 
         gameStarted.put(id, true);
+
+        Snake s = snakes.get(id);
+        s.setReady(true);
+
+        for(int playerId : players.keySet()){
+            ISnakeClient c = players.get(playerId);
+            c.updateSnake(s);
+        }
 
 
         for (int playerId : gameStarted.keySet()) {
@@ -284,11 +285,12 @@ String formattedMessage=id+":"+snakes.get(id).getName()+":"+message;
 
 
     public void notifyDisconnect(Snake s) throws RemoteException {
+        String message = "0:SERVER:"+s.getName()+" disconnected from the lobby...";
+        lobbyMessages.add(message);
+
         for(int id:players.keySet()){
             ISnakeClient c = players.get(id);
             c.playerDisconnected(s);
-            String message = "0:SERVER:"+s.getName()+" disconnected from the lobby...";
-            lobbyMessages.add(message);
             c.displayMessage(message);
         }
 

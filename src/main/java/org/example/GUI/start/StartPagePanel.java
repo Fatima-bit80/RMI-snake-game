@@ -10,6 +10,8 @@ import static org.example.Statics.Config.*;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class StartPagePanel extends JPanel implements GamePanel {
 
@@ -122,7 +124,7 @@ public class StartPagePanel extends JPanel implements GamePanel {
         connectButton.setMaximumSize(new Dimension(200, 60));
         connectButton.setFont(pixelFont.deriveFont(16f));
         connectButton.setForeground(LIGHT_GREEN_COLOR);
-        connectButton.addActionListener(e -> client.connectToTheServer(ipAddressField.getText(),snakeNameField.getText()));
+        connectButton.addActionListener(e -> connect());
         add(connectButton);
         add(Box.createVerticalStrut(30));
 
@@ -137,6 +139,11 @@ public class StartPagePanel extends JPanel implements GamePanel {
         messageArea.setFont(pixelFont.deriveFont(14f));
         messageArea.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(messageArea);
+
+
+        ipAddressField.addActionListener(e -> connect());
+        snakeNameField.addActionListener(e -> connect());
+
 
 
 
@@ -181,6 +188,11 @@ public class StartPagePanel extends JPanel implements GamePanel {
     public void displayMessage(String message) {
         messagePanel.displayMessage(message);
     }
+
+    public void connect(){
+        client.connectToTheServer(ipAddressField.getText(),snakeNameField.getText());
+    }
+
 
 
 }
