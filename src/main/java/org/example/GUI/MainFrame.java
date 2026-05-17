@@ -29,27 +29,18 @@ public class MainFrame extends JFrame {
     private final LobbyPanel lobbyPanel;
     private final SnakeClientImp clientImp;
 
-    private ISnakeServer snakeServer;
 
-    private int id=-1;
 
-    public void setId(int id) {
-        this.id = id;
-        lobbyPanel.setId(id);
-        mainGamePanel.setId(id);
-    }
-
-    public MainFrame(SnakeClientImp clientImp, ISnakeServer server, int id) throws RemoteException {
+    public MainFrame(SnakeClientImp clientImp) throws RemoteException {
         this.clientImp = clientImp;
-        this.snakeServer = server;
 
         cardLayout = new CardLayout();
         container = new JPanel(cardLayout);
 
         //panels
-        mainGamePanel = new MainGamePanel(server,clientImp,-1);
+        mainGamePanel = new MainGamePanel(clientImp);
         startPagePanel = new StartPagePanel(clientImp);
-        lobbyPanel = new LobbyPanel(server,-1,clientImp);
+        lobbyPanel = new LobbyPanel(clientImp);
 
         pageTitle = new HashMap<>();
         initializeMap();
@@ -126,11 +117,7 @@ public class MainFrame extends JFrame {
 
     }
 
-    public void setSnakeServer(ISnakeServer snakeServer) {
-        lobbyPanel.setServer(snakeServer);
-        mainGamePanel.setSnakeServer(snakeServer);
-        this.snakeServer = snakeServer;
-    }
+
 
     public LobbyPanel getLobbyPanel() {
         return lobbyPanel;
@@ -161,7 +148,7 @@ public class MainFrame extends JFrame {
 
 
     public static void main(String[] args) throws RemoteException {
-        MainFrame main = new MainFrame(SnakeClientImp.getInstance(),null,-1);
+        MainFrame main = new MainFrame(SnakeClientImp.getInstance());
         try {
             Thread.sleep(3000);
             main.showPage(MainGamePanel.class.getSimpleName());
@@ -174,9 +161,6 @@ public class MainFrame extends JFrame {
 
     public void resetUI() throws RemoteException {
         currentComponent=startPagePanel;
-        snakeServer=null;
-        setId(-1);
-        setSnakeServer(null);
         lobbyPanel.reset();
         mainGamePanel.reset();
     }

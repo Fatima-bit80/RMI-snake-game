@@ -19,23 +19,16 @@ import static org.example.Statics.Config.*;
 public class MainGamePanel extends JPanel implements GamePanel {
 
     private final SnakeClientImp snakeClientImp;
-    private ISnakeServer snakeServer;
 
     private final SnakesPanel gamePanel;
     private final LeaderBoardPanel leaderBoardPanel;
     private final MessagePanel messagePanel;
 
 
-    private int id;
-    //todo put id only in the clientImp and they all get it from there (single source) (they all only have the client imp)
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
-    public MainGamePanel(ISnakeServer server, SnakeClientImp  snakeClient, int id) {
+    public MainGamePanel(SnakeClientImp  snakeClient) {
         snakeClientImp = snakeClient;
-        this.snakeServer = server;
 
         setPreferredSize(new Dimension(TOTAL_WIDTH,GAME_HEIGHT));
         gamePanel= new SnakesPanel(new ArrayList<>());
@@ -54,9 +47,7 @@ public class MainGamePanel extends JPanel implements GamePanel {
 
     }
 
-    public void setSnakeServer(ISnakeServer snakeServer) {
-        this.snakeServer = snakeServer;
-    }
+
 
     private void addKeyListeners() {
         addKeyListener(new KeyAdapter() {
@@ -111,161 +102,161 @@ public class MainGamePanel extends JPanel implements GamePanel {
         leaderBoardPanel.updateLeaderBoard(scores);
     }
 
-    public static void main(String[] args) throws InterruptedException {
-
-        JFrame frame = new JFrame();
-
-        MainGamePanel game =  new MainGamePanel(null, SnakeClientImp.getInstance(),-1);
-
-        frame.add(game);
-
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-
-        frame.show();
-
-        ArrayList<String> scores = new ArrayList<>();
-
-        scores.add("Fatima:120");
-        scores.add("Ali:95");
-        scores.add("Sara:80");
-        scores.add("nitv:120");
-
-
-        ArrayList<Snake> snakes = new ArrayList<>();
-        Coordinate x1 = new Coordinate(2,1);
-        Coordinate x2 = new Coordinate(2,2);
-        Coordinate x3 = new Coordinate(3,2);
-        Coordinate x4 = new Coordinate(3,3);
-        ArrayList<Coordinate> coordinateList = new ArrayList<>();
-        coordinateList.add(x1);
-        coordinateList.add(x2);
-        coordinateList.add(x3);
-        coordinateList.add(x4);
-
-        snakes.add(new Snake(1,coordinateList,0,7,"fatima", GAME,false));
-
-
-        Coordinate y1 = new Coordinate(10,8);
-        Coordinate y2 = new Coordinate(10,7);
-        Coordinate y3 = new Coordinate(9,7);
-        Coordinate y4 = new Coordinate(8,7);
-        Coordinate y5 = new Coordinate(8,8);
-
-        Coordinate y6 = new Coordinate(8,9);
-        Coordinate y7 = new Coordinate(7,9);
-        Coordinate y8 = new Coordinate(6,9);
-
-
-        ArrayList<Coordinate> cy = new ArrayList<>();
-        cy.add(y1);
-        cy.add(y2);
-        cy.add(y3);
-        cy.add(y4);
-        cy.add(y5);
-        cy.add(y6);
-        cy.add(y7);
-        cy.add(y8);
-
-        snakes.add(new Snake(0,cy,2,8,"fffffATIMA NADDAHHHH",GAME,false));
-
-
-        System.out.println(snakes.getLast().coordinates);
-        game.updateLeaderBoard(scores);
-
-        game.redrawSnakes(snakes);
-        game.displayMessage("game is set");
-
-
-        int time = 50;
-        Thread.sleep(time);
-
-
-        while (true) {
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-
-            snakes.getLast().grow();
-            Thread.sleep(time);
-
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-
-            snakes.getLast().grow();
-            Thread.sleep(time);
-
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-
-            snakes.getLast().setDirection(RIGHT);
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-
-            snakes.getLast().grow();
-            Thread.sleep(time);
-
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().setDirection(UP);
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().setDirection(LEFT);
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-
-            snakes.getLast().setDirection(DOWN);
-            snakes.getLast().moveForward();
-            Thread.sleep(time);
-        }
-    }
-
+//    public static void main(String[] args) throws InterruptedException {
+//
+//        JFrame frame = new JFrame();
+//
+//        MainGamePanel game =  new MainGamePanel(null, -1);
+//
+//        frame.add(game);
+//
+//        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        frame.pack();
+//
+//        frame.show();
+//
+//        ArrayList<String> scores = new ArrayList<>();
+//
+//        scores.add("Fatima:120");
+//        scores.add("Ali:95");
+//        scores.add("Sara:80");
+//        scores.add("nitv:120");
+//
+//
+//        ArrayList<Snake> snakes = new ArrayList<>();
+//        Coordinate x1 = new Coordinate(2,1);
+//        Coordinate x2 = new Coordinate(2,2);
+//        Coordinate x3 = new Coordinate(3,2);
+//        Coordinate x4 = new Coordinate(3,3);
+//        ArrayList<Coordinate> coordinateList = new ArrayList<>();
+//        coordinateList.add(x1);
+//        coordinateList.add(x2);
+//        coordinateList.add(x3);
+//        coordinateList.add(x4);
+//
+//        snakes.add(new Snake(1,coordinateList,0,7,"fatima", GAME,false));
+//
+//
+//        Coordinate y1 = new Coordinate(10,8);
+//        Coordinate y2 = new Coordinate(10,7);
+//        Coordinate y3 = new Coordinate(9,7);
+//        Coordinate y4 = new Coordinate(8,7);
+//        Coordinate y5 = new Coordinate(8,8);
+//
+//        Coordinate y6 = new Coordinate(8,9);
+//        Coordinate y7 = new Coordinate(7,9);
+//        Coordinate y8 = new Coordinate(6,9);
+//
+//
+//        ArrayList<Coordinate> cy = new ArrayList<>();
+//        cy.add(y1);
+//        cy.add(y2);
+//        cy.add(y3);
+//        cy.add(y4);
+//        cy.add(y5);
+//        cy.add(y6);
+//        cy.add(y7);
+//        cy.add(y8);
+//
+//        snakes.add(new Snake(0,cy,2,8,"fffffATIMA NADDAHHHH",GAME,false));
+//
+//
+//        System.out.println(snakes.getLast().coordinates);
+//        game.updateLeaderBoard(scores);
+//
+//        game.redrawSnakes(snakes);
+//        game.displayMessage("game is set");
+//
+//
+//        int time = 50;
+//        Thread.sleep(time);
+//
+//
+//        while (true) {
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().grow();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().grow();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().setDirection(RIGHT);
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().grow();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().setDirection(UP);
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().setDirection(LEFT);
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//
+//            snakes.getLast().setDirection(DOWN);
+//            snakes.getLast().moveForward();
+//            Thread.sleep(time);
+//        }
+//    }
+//
 
     @Override
     public void displayMessage(String message) {
@@ -273,8 +264,6 @@ public class MainGamePanel extends JPanel implements GamePanel {
     }
 
     public void reset(){
-        snakeServer=null;
-        setId(-1);
     }
 
 }

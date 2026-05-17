@@ -24,8 +24,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
 
     private Map<Integer, Snake> snakes = new HashMap<>();
-    private int id;
-    private ISnakeServer server;
+
     private SnakeClientImp clientImp;
 
 
@@ -56,10 +55,8 @@ public class LobbyPanel extends JPanel implements GamePanel {
     private final JPanel bottomPanel;
 
 
-    public LobbyPanel(ISnakeServer server, int id, SnakeClientImp clientIMp) throws RemoteException {
+    public LobbyPanel(SnakeClientImp clientIMp) throws RemoteException {
 
-        this.server = server;
-        this.id = id;
         this.clientImp = clientIMp;
 
 
@@ -115,13 +112,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
         }
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
-    public int getId() {
-        return id;
-    }
 
     public void setSnakes(Map<Integer, Snake> snakes) {
         this.snakes = snakes;
@@ -130,9 +121,6 @@ public class LobbyPanel extends JPanel implements GamePanel {
         }
     }
 
-    public void setServer(ISnakeServer server) {
-        this.server = server;
-    }
 
 
     //gui initialization
@@ -421,8 +409,6 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
         spacers.put(s.getId(), spacer);
 
-        playersContainer.add(card);
-        playersContainer.add(spacer);
 
         statuses.put(s.id, status);
         images.put(s.getId(), snakePreview);
@@ -600,7 +586,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
             return;
 
         try {
-            server.displayLobbyChat(id, msg);
+           clientImp.getServer().displayLobbyChat(clientImp.getId(), msg);
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -643,7 +629,7 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
 
 
-        Snake s = snakes != null ? snakes.get(id) : null;
+        Snake s = snakes != null ? snakes.get(clientImp.getId()) : null;
         if (s == null) return;
 
 
@@ -708,7 +694,7 @@ nameLabel.setText(name);
 
     public void ready() {
         try {
-            server.requestStartGame(id);
+           clientImp.getServer().requestStartGame(clientImp.getId());
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
@@ -730,8 +716,6 @@ resetData();
 
     public void resetData(){
         snakes = new HashMap<>();
-        setId(-1);
-        server = null;
 
 
 

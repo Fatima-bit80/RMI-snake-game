@@ -69,6 +69,7 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     @Override
     public synchronized int connect(ISnakeClient client, String name) throws RemoteException, InterruptedException {
 
+        System.out.println(client);
         System.out.println(availableColors);
         int playerNumber = -1;
         //todo save to file
