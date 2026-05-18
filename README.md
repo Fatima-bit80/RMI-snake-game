@@ -168,9 +168,9 @@ src/main/java/org/example/
 │       ├── MainGamePanel        # Keyboard input, layout
 │       └── SnakesPanel          # Renders snakes & fruits
 ├── Model/
+│   ├── Coordinate.java          # Tile + pixel position
 │   └── Snake.java               # Serializable game entity
 ├── Statics/
-│   ├── Coordinate.java          # Tile + pixel position
 │   ├── Config.java              # All constants
 │   └── Images.java              # Pre-loaded sprites
 └── Enums/
