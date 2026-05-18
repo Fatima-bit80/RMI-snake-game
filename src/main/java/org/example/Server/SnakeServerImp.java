@@ -449,7 +449,6 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
         try {
 
-            System.setProperty("java.rmi.server.hostname", "192.168.234.251");
 
             Registry r = LocateRegistry.getRegistry(PORT);
 
