@@ -1,7 +1,7 @@
 package org.example.GUI.game;
 
 import org.example.Model.Snake;
-import org.example.Statics.Coordinate;
+import org.example.Model.Coordinate;
 import org.example.Statics.Images;
 
 import javax.swing.*;

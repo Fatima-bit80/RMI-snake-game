@@ -2,7 +2,7 @@ package org.example.Server;
 
 import org.example.Client.ISnakeClient;
 import org.example.Model.Snake;
-import org.example.Statics.Coordinate;
+import org.example.Model.Coordinate;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;

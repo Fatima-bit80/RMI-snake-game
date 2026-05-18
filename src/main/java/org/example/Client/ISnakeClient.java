@@ -1,7 +1,7 @@
 package org.example.Client;
 
 import org.example.Model.Snake;
-import org.example.Statics.Coordinate;
+import org.example.Model.Coordinate;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

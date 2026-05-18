@@ -1,4 +1,4 @@
-package org.example.Statics;
+package org.example.Model;
 
 import java.io.Serializable;
 

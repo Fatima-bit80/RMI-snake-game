@@ -6,7 +6,7 @@ import org.example.GUI.lobby.LobbyPanel;
 import org.example.GUI.start.StartPagePanel;
 import org.example.Server.ISnakeServer;
 import org.example.Model.Snake;
-import org.example.Statics.Coordinate;
+import org.example.Model.Coordinate;
 
 import javax.swing.*;
 import java.rmi.RemoteException;

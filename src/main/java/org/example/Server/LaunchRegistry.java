@@ -1,4 +1,4 @@
-package org.example.Statics;
+package org.example.Server;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;

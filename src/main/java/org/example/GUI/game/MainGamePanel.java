@@ -5,7 +5,7 @@ import org.example.GUI.MessagePanel;
 import org.example.Model.Snake;
 import org.example.Client.SnakeClientImp;
 import org.example.Statics.Config;
-import org.example.Statics.Coordinate;
+import org.example.Model.Coordinate;
 
 import javax.swing.*;
 import java.awt.*;

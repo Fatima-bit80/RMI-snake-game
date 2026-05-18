@@ -1,7 +1,6 @@
 package org.example.Model;
 
 import org.example.Enums.ColorCode;
-import org.example.Statics.Coordinate;
 
 import javax.swing.*;
 import java.awt.*;
