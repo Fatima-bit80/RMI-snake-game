@@ -30,7 +30,6 @@ public class SnakesPanel extends JPanel implements Serializable {
         Graphics2D g2d = (Graphics2D) g;
         super.paintComponent(g2d);
 
-        System.out.println("Painting snakes: " + snakes.size());
 
         g2d.drawImage(backGroundImage, 0, 0, getWidth(), getHeight(), this);
 

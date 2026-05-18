@@ -24,7 +24,7 @@ public interface ISnakeServer extends Remote {
 
     public void setDirection(int id, int direction) throws RemoteException;
 
-   public void heartbeat(int id) throws  RemoteException;
+ //  public void heartbeat(int id) throws  RemoteException;
 
     public void disconnect(int id) throws RemoteException, InterruptedException;
     //if in lobby i leave

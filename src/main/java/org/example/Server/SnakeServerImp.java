@@ -8,7 +8,10 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -16,12 +19,10 @@ import static org.example.Statics.Config.*;
 
 public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer {
 
-    //todo save last id given to file
     private static boolean gameOn = false;
     private static int id = 0;
 
-
-    private static final  List<Integer> availableColors = new CopyOnWriteArrayList<>();
+    private static final List<Integer> availableColors = new CopyOnWriteArrayList<>();
 
     static {
         availableColors.add(0);
@@ -33,8 +34,6 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     }
 
     private static final boolean[][] positions = new boolean[COLUMNS][ROWS];
-
-
 
     private int nbPlayers = 0;
 
@@ -67,7 +66,6 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     public synchronized int connect(ISnakeClient client, String name) throws RemoteException, InterruptedException {
 
         System.out.println(client);
-        System.out.println(availableColors);
         int playerNumber = -1;
         //todo save to file
 
@@ -101,6 +99,12 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
     }
 
     @Override
+    public void setDirection(int id, int direction) throws RemoteException {
+        snakes.get(id).setDirection(direction);
+    }
+
+
+    @Override
     public synchronized void disconnect(int id) throws RemoteException, InterruptedException {
 
         //todo if heart beat not sent -> disconnect
@@ -115,8 +119,6 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
             availableColors.add(playerNumber);
 
 
-
-
             gameStarted.remove(id);
             players.remove(id);
             nbPlayers--;
@@ -129,13 +131,6 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
         System.out.println("player with id " + id + " disconnected successfully");
 
-
-    }
-
-    @Override
-    public void setDirection(int id, int direction) throws RemoteException {
-
-        snakes.get(id).setDirection(direction);
 
     }
 
@@ -183,7 +178,7 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         String lobbyMessage = "0:SERVER:" + s.getName() + " joined the lobby...";
         lobbyMessages.add(lobbyMessage);
 
-        for (int i :new ArrayList<>(players.keySet())) {
+        for (int i : new ArrayList<>(players.keySet())) {
             System.out.println("id to notify " + i);
             ISnakeClient c = players.get(i);
             try {
@@ -228,8 +223,8 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         //if all players are ready and number of players is atleast 2
         new Thread(() -> {
             try {
-                if(gameOn==false)
-                startGame();
+                if (gameOn == false)
+                    startGame();
                 else {
                     addToOnGame(id);
                 }
@@ -240,15 +235,56 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
 
     }
 
-
     public void addToOnGame(int id) throws RemoteException, InterruptedException {
         Snake s = snakes.get(id);
         s.setState(GAME);
         ISnakeClient client = players.get(id);
-        client.startGame(snakes,fruits);
+        client.startGame(snakes, fruits);
     }
 
-    public void resetPositions(){
+
+    public void startGame() throws RemoteException, InterruptedException {
+
+        gameOn = true;
+        resetPositions();
+        setPlayersCoordinatesTrue();
+
+
+        System.out.println("Starting game");
+
+        notifyAllPlayersGameStarted();
+
+
+        //todo displayNumbers coutdown
+
+        //todo if a player joined while the others are in game, make sure that you create it in a place where no snake is
+
+
+        while (true) {
+
+
+            Thread.sleep(400);
+
+            if (new ArrayList<>(players.keySet()).isEmpty()) break;
+
+
+            for (Snake snake : new ArrayList<>(snakes.values())) {
+                growOrMoveSnake(snake);
+            }
+
+            resetPositions();
+            setPlayersCoordinatesTrue();
+
+            notifyNewSnakePositions();
+
+        }
+
+
+
+        gameOn = false;
+    }
+
+    public void resetPositions() {
         for (int i = 0; i < COLUMNS; i++) {
             for (int j = 0; j < ROWS; j++) {
                 positions[i][j] = false;
@@ -256,7 +292,7 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         }
     }
 
-    public void setPlayersCoordinatesTrue(){
+    public void setPlayersCoordinatesTrue() {
 
         for (int id : new ArrayList<>(players.keySet())) {
             Snake s = snakes.get(id);
@@ -267,7 +303,7 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         }
     }
 
-    public void notifyAllPlayersGameStarted(){
+    public void notifyAllPlayersGameStarted() {
 
         for (int id : new ArrayList<>(players.keySet())) {
             new Thread(() -> {
@@ -287,10 +323,9 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
         if (snake.isReady() && snake.getState() == GAME) {
 
 
-
             int totalF = (int) (new ArrayList<>(fruits.keySet()).toArray()[0]) + (int) (new ArrayList<>(fruits.keySet()).toArray()[1]);
             int otherFruit = 3 - totalF;
-            for (int fruitNb :new ArrayList<>(fruits.keySet())) {
+            for (int fruitNb : new ArrayList<>(fruits.keySet())) {
 
                 if (fruits.get(fruitNb).equals(snake.coordinates.get(0))) {
                     fruits.remove(fruitNb);
@@ -298,7 +333,12 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
                     fruits.put(otherFruit, c);
                     snake.grow();
 
-                    grew=true;
+                    grew = true;
+                    break;
+
+                    //todo eating 2 after each othe
+                    //todo nb format exception
+
 
                 }
             }
@@ -308,43 +348,43 @@ public class SnakeServerImp extends UnicastRemoteObject implements ISnakeServer 
             }
 
 
-Coordinate c = snake.coordinates.get(0);
+            Coordinate c = snake.coordinates.get(0);
 
-            if (c.getX() <= 0 || c.getX() >= COLUMNS - 1 || c.getY() <= 0 || c.getY() >= ROWS - 1 || positions[c.getX()][c.getY()] == true ) {
-                    System.out.println("border was defeated by " + snake.getName());
+            if (c.getX() <= 0 || c.getX() >= COLUMNS - 1 || c.getY() <= 0 || c.getY() >= ROWS - 1 || positions[c.getX()][c.getY()] == true) {
+                System.out.println("border was defeated by " + snake.getName());
 
-                    int id = snake.getId();
+                int id = snake.getId();
 
-                    new Thread(() -> {
+                new Thread(() -> {
 
-                        try {
+                    try {
 
 
-                            ISnakeClient client = players.get(id);
-                           disconnect(id);
-                            client.die();
+                        ISnakeClient client = players.get(id);
+                        disconnect(id);
+                        client.die();
 
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }).start();
-                }
+                    } catch (RemoteException e) {
+                        throw new RuntimeException(e);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
+            }
 
 
         }
     }
 
-    public void notifyNewSnakePositions(){
+    public void notifyNewSnakePositions() {
         for (int i : new ArrayList<>(players.keySet())) {
-            if (snakes.get(i)!=null&&snakes.get(i).isReady() && snakes.get(i).state == GAME) {
+            if (snakes.get(i) != null && snakes.get(i).isReady() && snakes.get(i).state == GAME) {
 
                 new Thread(() -> {
                     ISnakeClient c = players.get(i);
                     try {
-                        if(c!=null)
-                        c.updateGame(snakes, fruits);
+                        if (c != null)
+                            c.updateGame(snakes, fruits);
                     } catch (RemoteException e) {
                         throw new RuntimeException(e);
                     }
@@ -354,50 +394,11 @@ Coordinate c = snake.coordinates.get(0);
         }
     }
 
-    public void startGame() throws RemoteException, InterruptedException {
-
-        gameOn = true;
-        resetPositions();
-        setPlayersCoordinatesTrue();
-
-
-        System.out.println("Starting game");
-
-       notifyAllPlayersGameStarted();
-
-
-        //todo displayNumbers coutdown
-
-        //todo if a player joined while the others are in game, make sure that you create it in a place where no snake is
-
-
-        while (true) {
-
-
-                Thread.sleep(400);
-
-            if (players.isEmpty()) break;
-
-
-            for (Snake snake :new ArrayList<>(snakes.values())) {
-                growOrMoveSnake(snake);
-            }
-
-            resetPositions();
-            setPlayersCoordinatesTrue();
-
-            notifyNewSnakePositions();
-
-        }
-
-        gameOn=false;
-    }
-
     public synchronized Coordinate findCoordinate() {
         Random rand = new Random();
 
-        int x = 1+ rand.nextInt(COLUMNS - 2);
-        int y = 1+ rand.nextInt( ROWS - 2);
+        int x = 1 + rand.nextInt(COLUMNS - 2);
+        int y = 1 + rand.nextInt(ROWS - 2);
         if (positions[x][y] == false) {
             return new Coordinate(x, y);
         } else {
@@ -405,21 +406,10 @@ Coordinate c = snake.coordinates.get(0);
         }
     }
 
-    @Override
-    public void heartbeat(int id) throws RemoteException {
-
-    }
-
-
-    public void sendMessage(String message, int state) throws RemoteException {
-        if (state == LOBBY || state == GAME) {
-            for (ISnakeClient c : players.values()) {
-                c.displayMessage(message);
-            }
-        }
-
-
-    }
+//    @Override
+//    public void heartbeat(int id) throws RemoteException {
+//
+//    }
 
 
     public void notifyDisconnect(Snake s) throws RemoteException {
@@ -445,9 +435,22 @@ Coordinate c = snake.coordinates.get(0);
         return snakeCoordinate;
     }
 
+    public void sendMessage(String message, int state) throws RemoteException {
+        if (state == LOBBY || state == GAME) {
+            for (ISnakeClient c : players.values()) {
+                c.displayMessage(message);
+            }
+        }
+
+
+    }
+
     public static void main(String[] args) {
 
         try {
+
+            System.setProperty("java.rmi.server.hostname", "192.168.234.251");
+
             Registry r = LocateRegistry.getRegistry(PORT);
 
             ISnakeServer server = new SnakeServerImp();
@@ -455,6 +458,8 @@ Coordinate c = snake.coordinates.get(0);
             r.rebind("snakeServer", server);
 
             System.out.println("Snake server is running...");
+
+            System.out.println(server);
 
         } catch (RemoteException e) {
             throw new RuntimeException(e);

@@ -486,6 +486,10 @@ public class LobbyPanel extends JPanel implements GamePanel {
 
         String[] parts = message.split(":");
 
+        if(parts.length<3){
+            return;
+        }
+
         int playerId = Integer.parseInt(parts[0]);
 
         String playerName = parts[1];
